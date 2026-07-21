@@ -417,7 +417,7 @@ body{
 <!-- CHAT PANEL -->
 <div class="chat-panel" id="chatPanel">
   <div class="chat-head">
-    <div class="ch-avatar"><img src="https://www.ikea.com/global/assets/logos/brand/ikea.svg" alt="IKEA"></div>
+    <div class="ch-avatar"><svg viewBox="0 0 98 40" width="22" height="22"><rect width="98" height="40" fill="#0051ba"/><path d="M24.5 8h-7l-3.5 6-3.5-6h-7l7 12v12h7V20l7-12zM44 8h-7v24h7V8zM59 8h-7l-5 10-5-10h-7v24h7V18l4 8 4-8v14h7V8zM76 8h-7v24h7V8zM84 8h-4v20h-5v4h14v-4h-5V8z" fill="#fff"/></svg></div>
     <div class="ch-info">
       <div class="ch-name">IKEA Assistant</div>
       <div class="ch-status"><span class="dot on" id="statusDot"></span> <span id="statusText">Connected</span></div>
@@ -426,7 +426,7 @@ body{
   </div>
   <div class="chat-msgs" id="chatMsgs">
     <div class="msg bot">
-      <div class="av"><img src="https://www.ikea.com/global/assets/logos/brand/ikea.svg" alt="IKEA"></div>
+      <div class="av"><svg viewBox="0 0 98 40" width="20" height="20"><rect width="98" height="40" fill="#0051ba"/><path d="M24.5 8h-7l-3.5 6-3.5-6h-7l7 12v12h7V20l7-12zM44 8h-7v24h7V8zM59 8h-7l-5 10-5-10h-7v24h7V18l4 8 4-8v14h7V8zM76 8h-7v24h7V8zM84 8h-4v20h-5v4h14v-4h-5V8z" fill="#fff"/></svg></div>
       <div class="bub">
         👋 Hej! Welcome to <strong>IKEA Ireland</strong><br><br>
         I can help you with:
@@ -828,7 +828,7 @@ function addMsg(role, html, opts) {
   }
   b += '</div>';
   const userAv = '<div class="av">U</div>';
-  const botAv = '<div class="av"><img src="https://www.ikea.com/global/assets/logos/brand/ikea.svg" alt="IKEA"></div>';
+  const botAv = '<div class="av"><svg viewBox="0 0 98 40" width="20" height="20"><rect width="98" height="40" fill="#0051ba"/><path d="M24.5 8h-7l-3.5 6-3.5-6h-7l7 12v12h7V20l7-12zM44 8h-7v24h7V8zM59 8h-7l-5 10-5-10h-7v24h7V18l4 8 4-8v14h7V8zM76 8h-7v24h7V8zM84 8h-4v20h-5v4h14v-4h-5V8z" fill="#fff"/></svg></div>';
   el.innerHTML = `${role==='user' ? userAv : botAv}${b}`;
   chatMsgs.appendChild(el); chatMsgs.scrollTop = chatMsgs.scrollHeight;
   const hero = document.getElementById('heroBanner');
@@ -837,16 +837,8 @@ function addMsg(role, html, opts) {
 
 function addThink() {
   const d = document.createElement('div'); d.className = 'msg bot thinking'; d.id = 'thinkMsg';
-  d.innerHTML = '<div class="av"><img src="https://www.avatar.png?dummy" alt="IKEA" onerror="this.parentElement.innerHTML=this.parentElement.innerHTML;this.remove();this.parentElement.style.backgroundColor="#ffcc00";this.parentElement.style.color="#00358c""></div><div class="bub"><div class="typing"><span></span><span></span><span></span></div></div>';
-  chatMsgs.appendChild(d);
-  // Fix the IKEA logo in thinking snack
-  const av = d.querySelector('.av');
-  if (av) {
-    av.style.background = '#fff';
-    av.style.border = '1px solid var(--border)';
-    av.innerHTML = '<img src="https://www.ikea.com/global/assets/logos/brand/ikea.svg" style="width:20px;height:20px" alt="IKEA" onerror="this.parentElement.innerHTML=\"I\";this.parentElement.style.backgroundColor=\"#ffcc00\";this.parentElement.style.color=\"#00358c\"">';
-  }
-  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  d.innerHTML = '<div class="av" style="background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden"><svg viewBox="0 0 98 40" width="20" height="20"><rect width="98" height="40" fill="#0051ba"/><path d="M24.5 8h-7l-3.5 6-3.5-6h-7l7 12v12h7V20l7-12zM44 8h-7v24h7V8zM59 8h-7l-5 10-5-10h-7v24h7V18l4 8 4-8v14h7V8zM76 8h-7v24h7V8zM84 8h-4v20h-5v4h14v-4h-5V8z" fill="#fff"/></svg></div><div class="bub"><div class="typing"><span></span><span></span><span></span></div></div>';
+  chatMsgs.appendChild(d); chatMsgs.scrollTop = chatMsgs.scrollHeight;
 }
 
 function rmThink() { const e = $('thinkMsg'); if(e) e.remove(); }
@@ -1028,10 +1020,21 @@ const TOOLS = {
       if (!query) return { error:"Please enter a search term." };
       const q = query.toLowerCase();
       const P = getProducts();
-      let r = P.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q) || p.tags.some(t => t.includes(q)) || p.desc.toLowerCase().includes(q));
+      let r = P.filter(p => {
+        const name = (p.name||'').toLowerCase();
+        const cat = (p.cat||'').toLowerCase();
+        const desc = (p.desc||'').toLowerCase();
+        const tags = Array.isArray(p.tags) ? p.tags : [];
+        return name.includes(q) || cat.includes(q) || desc.includes(q) || tags.some(t => (t||'').includes(q));
+      });
       if (!r.length) {
         const ws = q.split(/\s+/).filter(w => w.length > 2);
-        if (ws.length) r = P.filter(p => ws.some(w => p.name.toLowerCase().includes(w) || p.cat.toLowerCase().includes(w) || p.tags.some(t => t.includes(w))));
+        if (ws.length) r = P.filter(p => {
+          const name = (p.name||'').toLowerCase();
+          const cat = (p.cat||'').toLowerCase();
+          const tags = Array.isArray(p.tags) ? p.tags : [];
+          return ws.some(w => name.includes(w) || cat.includes(w) || (p.desc||'').toLowerCase().includes(w) || tags.some(t => (t||'').includes(w)));
+        });
       }
       return { results:r.slice(0,12), total:r.length, query };
     }
@@ -1042,7 +1045,7 @@ const TOOLS = {
     fn:async ({ product }) => {
       if (!product) return { error:"Provide a product name or ID." };
       const q = product.toLowerCase(); const P = getProducts();
-      const p = P.find(x => x.id.toLowerCase() === q) || P.find(x => x.name.toLowerCase().includes(q));
+      const p = P.find(x => (x.id||'').toLowerCase() === q) || P.find(x => (x.name||'').toLowerCase().includes(q));
       return p ? { product:p } : { error:`Product "${product}" not found. Try searching first.` };
     }
   },
@@ -1052,14 +1055,14 @@ const TOOLS = {
     fn:async ({ orderId, email }) => {
       const O = getOrders(), C = getCustomers();
       if (orderId) {
-        const o = O.find(x => x.id.toLowerCase() === orderId.toLowerCase());
+        const o = O.find(x => (x.id||'').toLowerCase() === orderId.toLowerCase());
         if (!o) return { error:`Order "${orderId}" not found.` };
-        return { order:{ ...o, customer:C.find(c => c.email === o.email)?.name || 'Unknown' } };
+        return { order:{ ...o, customer:(C.find(c => (c.email||'') === (o.email||''))||{}).name || 'Unknown' } };
       }
       if (email) {
-        const c = C.find(x => x.email.toLowerCase() === email.toLowerCase());
+        const c = C.find(x => (x.email||'').toLowerCase() === email.toLowerCase());
         if (!c) return { error:`No customer found for "${email}".` };
-        return { customer:c, orders:O.filter(x => x.email.toLowerCase() === email.toLowerCase()).sort((a,b) => new Date(b.date)-new Date(a.date)) };
+        return { customer:c, orders:O.filter(x => (x.email||'').toLowerCase() === email.toLowerCase()).sort((a,b) => new Date(b.date)-new Date(a.date)) };
       }
       return { error:"Provide an order ID or email address." };
     }
