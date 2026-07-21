@@ -844,10 +844,10 @@
 <!-- ═══ MODAL ═══ -->
 <div class="modal-overlay hidden" id="setupModal">
   <div class="modal">
-    <div class="m-icon">🤖</div>
-    <h2>Change API Key</h2>
-    <p>Update your API key or switch providers. The app is already connected with your default key.</p>
-    <label for="apiType">Provider</label>
+    <div class="m-icon">⚙️</div>
+    <h2>Settings</h2>
+    <p>Configure API key and Google Sheets data source. Changes apply immediately.</p>
+    <label for="apiType">AI Provider</label>
     <select id="apiType">
       <option value="openai">OpenAI — GPT-4o-mini</option>
       <option value="gemini">Google — Gemini 2.0 Flash</option>
@@ -857,6 +857,21 @@
     <div class="hint" id="providerHint">
       Get your key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>
     </div>
+    <details style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+      <summary style="font-size:0.72rem;font-weight:600;cursor:pointer;color:var(--text-secondary)">
+        📊 Live Data from Google Sheets
+      </summary>
+      <p style="font-size:0.62rem;color:var(--text-tertiary);margin:6px 0 8px;line-height:1.6">
+        Publish your sheet (File → Share → Publish to web) and paste the Sheet ID (the long string in the URL between /d/ and /edit).
+        Leave as <code style="font-size:0.6rem;background:var(--gray-50);padding:0 4px;border-radius:3px">YOUR_...</code> to use built-in data.
+      </p>
+      <label for="sheetProducts" style="font-size:0.62rem">Products Sheet ID</label>
+      <input type="text" id="sheetProducts" placeholder="YOUR_PRODUCTS_SHEET_ID" style="font-size:0.72rem;padding:7px 10px">
+      <label for="sheetCustomers" style="font-size:0.62rem;margin-top:0">Customers Sheet ID</label>
+      <input type="text" id="sheetCustomers" placeholder="YOUR_CUSTOMERS_SHEET_ID" style="font-size:0.72rem;padding:7px 10px">
+      <label for="sheetOrders" style="font-size:0.62rem;margin-top:0">Orders Sheet ID</label>
+      <input type="text" id="sheetOrders" placeholder="YOUR_ORDERS_SHEET_ID" style="font-size:0.72rem;padding:7px 10px">
+    </details>
     <div class="actions">
       <button class="primary" onclick="saveSetup()">Save</button>
       <button class="ghost" onclick="closeSetup()">Cancel</button>
@@ -1002,6 +1017,64 @@ let apiType = 'openai';
 let dark = localStorage.getItem(DK) === 'true';
 let msgs = [];
 
+// Google Sheets IDs — replace with your published sheet IDs (File → Publish to web)
+const SHEETS = {
+  products: 'YOUR_PRODUCTS_SHEET_ID',
+  customers: 'YOUR_CUSTOMERS_SHEET_ID',
+  orders: 'YOUR_ORDERS_SHEET_ID'
+};
+const SHEET_CACHE = { products: null, customers: null, orders: null };
+
+async function fetchSheet(sheetId) {
+  if (!sheetId || sheetId.startsWith('YOUR_')) return null;
+  try {
+    const r = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq&tq=`, { cache:'no-store' });
+    const txt = await r.text();
+    const json = JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\)/)[1]);
+    if (!json.table) return null;
+    const cols = json.table.cols.filter(c => c.label).map(c => c.label);
+    return json.table.rows.filter(r => r.c).map(r => {
+      const obj = {};
+      r.c.forEach((cell, i) => {
+        let val = cell ? cell.v : null;
+        if (typeof val === 'string') val = val.trim();
+        obj[cols[i]] = val;
+      });
+      return obj;
+    });
+  } catch(e) {
+    console.warn('Sheet fetch failed:', e);
+    return null;
+  }
+}
+
+async function refreshData() {
+  const [p, c, o] = await Promise.all([fetchSheet(SHEETS.products), fetchSheet(SHEETS.customers), fetchSheet(SHEETS.orders)]);
+  if (p) {
+    p.forEach(x => { if (typeof x.tags === 'string') x.tags = x.tags.split('|').map(t => t.trim()).filter(Boolean); if (typeof x.price === 'string') x.price = parseFloat(x.price); });
+    SHEET_CACHE.products = p;
+    console.log(`Loaded ${p.length} products from Sheets`);
+  }
+  if (c) {
+    c.forEach(x => { if (typeof x.points === 'string') x.points = parseInt(x.points); });
+    SHEET_CACHE.customers = c;
+    console.log(`Loaded ${c.length} customers from Sheets`);
+  }
+  if (o) {
+    o.forEach(x => {
+      if (typeof x.total === 'string') x.total = parseFloat(x.total);
+      if (typeof x.items === 'string') try { x.items = JSON.parse(x.items); } catch(e) { x.items = []; }
+      if (typeof x.points === 'string') x.points = parseInt(x.points);
+    });
+    SHEET_CACHE.orders = o;
+    console.log(`Loaded ${o.length} orders from Sheets`);
+  }
+}
+
+function getProducts() { return SHEET_CACHE.products || PRODUCTS; }
+function getCustomers() { return SHEET_CACHE.customers || CUSTOMERS; }
+function getOrders() { return SHEET_CACHE.orders || ORDERS; }
+
 const $ = id => document.getElementById(id);
 const chatMsgs = $('chatMsgs'), chatInput = $('chatInput'), sendBtn = $('sendBtn');
 const toolLog = $('toolLog'), statusDot = $('statusDot'), statusText = $('statusText');
@@ -1049,22 +1122,23 @@ function addThink() {
 function rmThink() { const e = $('thinkMsg'); if(e) e.remove(); }
 
 function showDashboard() {
-  const total = ORDERS.length;
-  const revenue = ORDERS.reduce((s, o) => s + o.total, 0);
+  const ORDS = getOrders(), PRODS = getProducts(), CUSTS = getCustomers();
+  const total = ORDS.length;
+  const revenue = ORDS.reduce((s, o) => s + o.total, 0);
   const avgOrder = revenue / total;
   const byStatus = {};
-  ORDERS.forEach(o => { byStatus[o.status] = (byStatus[o.status]||0) + 1; });
+  ORDS.forEach(o => { byStatus[o.status] = (byStatus[o.status]||0) + 1; });
   const byCat = {};
   const prodSales = {};
-  ORDERS.forEach(o => o.items.forEach(i => {
+  ORDS.forEach(o => o.items.forEach(i => {
     prodSales[i.name] = (prodSales[i.name]||0) + i.qty;
-    const p = PRODUCTS.find(x => x.id === i.id);
+    const p = PRODS.find(x => x.id === i.id);
     if (p) byCat[p.cat] = (byCat[p.cat]||0) + i.qty * i.price;
   }));
   const topProds = Object.entries(prodSales).sort((a,b) => b[1]-a[1]).slice(0,5);
   const cats = Object.entries(byCat).sort((a,b) => b[1]-a[1]);
   const byTier = {};
-  CUSTOMERS.forEach(c => { byTier[c.tier] = (byTier[c.tier]||0) + 1; });
+  CUSTS.forEach(c => { byTier[c.tier] = (byTier[c.tier]||0) + 1; });
 
   const statusColors = { delivered:'#16a34a', shipped:'#0051ba', processing:'#ea580c', cancelled:'#dc2626' };
   const statusBgs = { delivered:'#f0fdf4', shipped:'#eef4fb', processing:'#fff7ed', cancelled:'#fef2f2' };
@@ -1085,7 +1159,7 @@ function showDashboard() {
           <div class="dc-label">Avg Order</div>
         </div>
         <div class="dash-card" style="border-left:3px solid var(--orange)">
-          <div class="dc-value" style="color:var(--orange)">${CUSTOMERS.length}</div>
+          <div class="dc-value" style="color:var(--orange)">${CUSTS.length}</div>
           <div class="dc-label">Customers</div>
         </div>
       </div>
@@ -1126,7 +1200,7 @@ function showDashboard() {
     </div>
   `;
   showRes(html, `${total} orders`);
-  addMsg('bot', `<strong>📊 Business Dashboard</strong><br>${total} orders · €${revenue.toFixed(2)} revenue · ${CUSTOMERS.length} customers · €${avgOrder.toFixed(2)} avg order`);
+  addMsg('bot', `<strong>📊 Business Dashboard</strong><br>${total} orders · €${revenue.toFixed(2)} revenue · ${CUSTS.length} customers · €${avgOrder.toFixed(2)} avg order`);
 }
 
 function clrRes() { sRes.style.display='none'; sRes.innerHTML=''; sEmpty.style.display='flex'; rCount.textContent=''; }
@@ -1210,10 +1284,11 @@ const TOOLS = {
     fn:async ({ query }) => {
       if (!query) return { error:"Please enter a search term." };
       const q = query.toLowerCase();
-      let r = PRODUCTS.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q) || p.tags.some(t => t.includes(q)) || p.desc.toLowerCase().includes(q));
+      const P = getProducts();
+      let r = P.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q) || p.tags.some(t => t.includes(q)) || p.desc.toLowerCase().includes(q));
       if (!r.length) {
         const ws = q.split(/\s+/).filter(w => w.length > 2);
-        if (ws.length) r = PRODUCTS.filter(p => ws.some(w => p.name.toLowerCase().includes(w) || p.cat.toLowerCase().includes(w) || p.tags.some(t => t.includes(w))));
+        if (ws.length) r = P.filter(p => ws.some(w => p.name.toLowerCase().includes(w) || p.cat.toLowerCase().includes(w) || p.tags.some(t => t.includes(w))));
       }
       return { results:r.slice(0,12), total:r.length, query };
     }
@@ -1223,8 +1298,8 @@ const TOOLS = {
     params:{ product:"Product name or ID (e.g. 'MALM Bed' or 'MALM-001')" },
     fn:async ({ product }) => {
       if (!product) return { error:"Provide a product name or ID." };
-      const q = product.toLowerCase();
-      const p = PRODUCTS.find(x => x.id.toLowerCase() === q) || PRODUCTS.find(x => x.name.toLowerCase().includes(q));
+      const q = product.toLowerCase(); const P = getProducts();
+      const p = P.find(x => x.id.toLowerCase() === q) || P.find(x => x.name.toLowerCase().includes(q));
       return p ? { product:p } : { error:`Product "${product}" not found. Try searching first.` };
     }
   },
@@ -1232,15 +1307,16 @@ const TOOLS = {
     desc:"Track an IKEA order by ID or find all orders for a customer email",
     params:{ orderId:"Order ID (e.g. IE-2024-001)", email:"Customer email (finds all orders)" },
     fn:async ({ orderId, email }) => {
+      const O = getOrders(), C = getCustomers();
       if (orderId) {
-        const o = ORDERS.find(x => x.id.toLowerCase() === orderId.toLowerCase());
+        const o = O.find(x => x.id.toLowerCase() === orderId.toLowerCase());
         if (!o) return { error:`Order "${orderId}" not found.` };
-        return { order:{ ...o, customer:CUSTOMERS.find(c => c.email === o.email)?.name || 'Unknown' } };
+        return { order:{ ...o, customer:C.find(c => c.email === o.email)?.name || 'Unknown' } };
       }
       if (email) {
-        const c = CUSTOMERS.find(x => x.email.toLowerCase() === email.toLowerCase());
+        const c = C.find(x => x.email.toLowerCase() === email.toLowerCase());
         if (!c) return { error:`No customer found for "${email}".` };
-        return { customer:c, orders:ORDERS.filter(x => x.email.toLowerCase() === email.toLowerCase()).sort((a,b) => new Date(b.date)-new Date(a.date)) };
+        return { customer:c, orders:O.filter(x => x.email.toLowerCase() === email.toLowerCase()).sort((a,b) => new Date(b.date)-new Date(a.date)) };
       }
       return { error:"Provide an order ID or email address." };
     }
@@ -1250,9 +1326,10 @@ const TOOLS = {
     params:{ email:"Customer email address" },
     fn:async ({ email }) => {
       if (!email) return { error:"Provide an email address." };
-      const c = CUSTOMERS.find(x => x.email.toLowerCase() === email.toLowerCase());
+      const C = getCustomers(), O = getOrders();
+      const c = C.find(x => x.email.toLowerCase() === email.toLowerCase());
       if (!c) return { error:`No customer found for "${email}".` };
-      const orders = ORDERS.filter(x => x.email.toLowerCase() === email.toLowerCase()).sort((a,b) => new Date(b.date)-new Date(a.date));
+      const orders = O.filter(x => x.email.toLowerCase() === email.toLowerCase()).sort((a,b) => new Date(b.date)-new Date(a.date));
       const spent = orders.reduce((s,o) => s + o.total, 0);
       return { customer:c, orders, summary:{ total:orders.length, spent:Math.round(spent*100)/100, points:c.points } };
     }
@@ -1268,7 +1345,7 @@ const TOOLS = {
   categories: {
     desc:"List all IKEA product categories with product counts",
     fn:async () => {
-      const m = {}; PRODUCTS.forEach(p => { m[p.cat] = (m[p.cat]||0) + 1; });
+      const m = {}; getProducts().forEach(p => { m[p.cat] = (m[p.cat]||0) + 1; });
       return { categories:Object.entries(m).map(([k,v]) => ({ name:k, count:v })).sort((a,b) => b.count - a.count) };
     }
   }
@@ -1390,7 +1467,14 @@ chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 // SETUP / MODAL
 // ════════════════════════════════════════════════════════════════
 
-function showSetup() { $('setupModal').classList.remove('hidden'); $('apiKeyInput').value = apiKey; $('apiType').value = apiType; updHint(); }
+function showSetup() {
+  $('setupModal').classList.remove('hidden');
+  $('apiKeyInput').value = apiKey; $('apiType').value = apiType;
+  $('sheetProducts').value = localStorage.getItem('sheet_products') || SHEETS.products;
+  $('sheetCustomers').value = localStorage.getItem('sheet_customers') || SHEETS.customers;
+  $('sheetOrders').value = localStorage.getItem('sheet_orders') || SHEETS.orders;
+  updHint();
+}
 function closeSetup() { $('setupModal').classList.add('hidden'); }
 function updHint() {
   $('providerHint').innerHTML = $('apiType').value === 'openai'
@@ -1404,6 +1488,12 @@ function saveSetup() {
   if (k.value.trim()) {
     apiKey = k.value.trim(); apiType = t.value;
     localStorage.setItem(SK, apiKey); localStorage.setItem(ST, apiType);
+    // Save sheet IDs
+    const sp = $('sheetProducts').value.trim(), sc = $('sheetCustomers').value.trim(), so = $('sheetOrders').value.trim();
+    if (sp && !sp.startsWith('YOUR_')) { localStorage.setItem('sheet_products', sp); SHEETS.products = sp; }
+    if (sc && !sc.startsWith('YOUR_')) { localStorage.setItem('sheet_customers', sc); SHEETS.customers = sc; }
+    if (so && !so.startsWith('YOUR_')) { localStorage.setItem('sheet_orders', so); SHEETS.orders = so; }
+    refreshData();
     setStatus(true, `${apiType === 'openai' ? 'OpenAI' : 'Gemini'} connected`);
     closeSetup();
   }
@@ -1424,7 +1514,15 @@ if (dark) document.body.classList.add('dark');
 // ════════════════════════════════════════════════════════════════
 
 (function init() {
+  // Load saved sheet IDs
+  const sp = localStorage.getItem('sheet_products'), sc = localStorage.getItem('sheet_customers'), so = localStorage.getItem('sheet_orders');
+  if (sp) SHEETS.products = sp;
+  if (sc) SHEETS.customers = sc;
+  if (so) SHEETS.orders = so;
   setStatus(true, 'Connected');
+  refreshData().then(() => {
+    console.log('Data refresh complete');
+  });
 })();
 </script>
 </body>
