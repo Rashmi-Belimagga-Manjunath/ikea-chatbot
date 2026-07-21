@@ -24,8 +24,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Inject API key
+        env:
+          IKEA_KEY: ${{ secrets.IKEA_OPENAI_KEY }}
         run: |
-          sed -i "s/HARD_KEY_PLACEHOLDER/${{ secrets.IKEA_OPENAI_KEY }}/g" index.html
+          awk -v key="$IKEA_KEY" '{gsub(/HARD_KEY_PLACEHOLDER/, key)}1' index.html > index.tmp && mv index.tmp index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
