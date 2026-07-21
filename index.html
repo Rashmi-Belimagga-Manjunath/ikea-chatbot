@@ -134,13 +134,8 @@
     transition:all .2s var(--ease); display:flex; align-items:center; gap:5px;
   }
   .topbar-btn:hover { background:rgba(255,255,255,0.18); color:#fff; }
-  .topbar-btn:active { transform:scale(0.96); }
-  .topbar-demo {
-    font-size:0.55rem; font-weight:700; letter-spacing:0.03em;
-    background:var(--yellow); color:var(--blue-800); padding:2px 8px;
-    border-radius:3px; text-transform:uppercase; display:none;
-    animation:fadeIn .35s var(--ease);
-  }
+  .topbar-btn:active { transform:scale(0.96);   }
+
 
   /* ═══════════════════════════════════════════════════════════
      LAYOUT
@@ -660,10 +655,8 @@
     <span class="topbar-tagline">Shopping Companion · Ireland</span>
   </div>
   <div class="topbar-right">
-    <span class="topbar-demo" id="demoTag">🎯 DEMO</span>
     <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
-    <button class="topbar-btn hide-xs" onclick="showSetup()">🔑 Setup</button>
-    <button class="topbar-btn" onclick="if(confirm('Reset everything?'))resetApp()" title="Reset">🔄</button>
+    <button class="topbar-btn hide-xs" onclick="showSetup()">🔑 Key</button>
   </div>
 </header>
 
@@ -676,8 +669,7 @@
       <div class="sidebar-head-row">
         <h2><em>Results</em></h2>
         <div style="display:flex;align-items:center;gap:4px">
-          <button class="ch-btn" onclick="showSpreadsheet()" title="View order spreadsheet" style="font-size:0.55rem;padding:3px 7px">📊 Sheet</button>
-          <button class="ch-btn" onclick="downloadCSV()" title="Download CSV for Google Sheets/Excel" style="font-size:0.55rem;padding:3px 7px">⬇ CSV</button>
+          <button class="ch-btn" onclick="showDashboard()" title="View business dashboard" style="font-size:0.55rem;padding:3px 7px">📊 Dashboard</button>
           <span class="sidebar-count" id="resultCount"></span>
         </div>
       </div>
@@ -714,7 +706,6 @@
         </div>
       </div>
       <div class="chat-head-right">
-        <button class="ch-btn" id="demoBtn" onclick="toggleDemo()">🎯 Demo</button>
         <button class="ch-btn hide-xs" onclick="showSetup()">🔑 Key</button>
       </div>
     </div>
@@ -733,7 +724,7 @@
             <li>🏪 <strong>Store info</strong> — "When does Ballymun open?" or "Store services"</li>
             <li>💛 <strong>IKEA Family</strong> — "Tell me about IKEA Family offers"</li>
           </ul>
-          Enter your API key or start <strong>Demo mode</strong> to begin!
+          <strong>OpenAI is connected!</strong> Just ask me anything. 👇
         </div>
       </div>
     </div>
@@ -766,8 +757,8 @@
 <div class="modal-overlay hidden" id="setupModal">
   <div class="modal">
     <div class="m-icon">🤖</div>
-    <h2>Connect your AI</h2>
-    <p>Link your own API key for live AI responses, or try <strong>Demo mode</strong> with our built-in product catalogue.</p>
+    <h2>Change API Key</h2>
+    <p>Update your API key or switch providers. The app is already connected with your default key.</p>
 
     <label for="apiType">Provider</label>
     <select id="apiType">
@@ -782,8 +773,7 @@
     </div>
 
     <div class="actions">
-      <button class="primary" onclick="saveSetup(true)">Connect</button>
-      <button class="secondary" onclick="saveSetup(false)">🎯 Demo Mode</button>
+      <button class="primary" onclick="saveSetup()">Save</button>
       <button class="ghost" onclick="closeSetup()">Cancel</button>
     </div>
   </div>
@@ -832,64 +822,128 @@ const PRODUCTS = [
 const ICONS = { 'MALM':'🛏️','BILLY':'📚','KALLAX':'📦','LACK':'🪑','KIVIK':'🛋️','POÄNG':'🪑','HEMNES':'🗄️','PAX':'🚪','BESTÅ':'📺','KURA':'🛌','TROTTEN':'💻','ALEX':'🗄️','FJÄLLBO':'🪜','GERTON':'🪵','EKTÖP':'🛋️','FRAKTA':'🛍️','SMÅSTAD':'🧸' };
 
 const CUSTOMERS = [
-  { email:"rashmi@example.com", name:"Rashmi Manjunath", phone:"+353 85 123 4567", points:2450, since:"2023-03-15", tier:"Gold", addr:"12 Ailesbury Road, Dublin 4", county:"Dublin" },
-  { email:"sarah@example.com", name:"Sarah Connor", phone:"+353 87 234 5678", points:1820, since:"2023-06-22", tier:"Silver", addr:"45 Merrion Square, Dublin 2", county:"Dublin" },
-  { email:"john@example.com", name:"John Murphy", phone:"+353 86 345 6789", points:890, since:"2024-01-10", tier:"Standard", addr:"8 Temple Road, Dublin 6", county:"Dublin" },
-  { email:"emma@example.com", name:"Emma Walsh", phone:"+353 83 456 7890", points:3100, since:"2022-11-05", tier:"Gold", addr:"23 Howth Road, Dublin 5", county:"Dublin" },
-  { email:"ciaran@example.com", name:"Ciarán O'Brien", phone:"+353 89 567 8901", points:560, since:"2024-08-19", tier:"Standard", addr:"56 Capel Street, Dublin 1", county:"Dublin" },
   { email:"aoife@example.com", name:"Aoife O'Sullivan", phone:"+353 87 654 3210", points:4100, since:"2022-04-10", tier:"Gold", addr:"17 Dun Laoghaire Road, Dublin 6", county:"Dublin" },
   { email:"liam@example.com", name:"Liam Kelly", phone:"+353 86 789 0123", points:1250, since:"2023-11-28", tier:"Silver", addr:"33 Patrick Street, Cork", county:"Cork" },
   { email:"niamh@example.com", name:"Niamh Byrne", phone:"+353 83 210 9876", points:730, since:"2024-05-14", tier:"Standard", addr:"9 O'Connell Street, Limerick", county:"Limerick" },
   { email:"sean@example.com", name:"Seán McCarthy", phone:"+353 85 432 1098", points:2800, since:"2023-01-20", tier:"Gold", addr:"22 Main Street, Galway", county:"Galway" },
   { email:"mairead@example.com", name:"Máiréad Ní Raghallaigh", phone:"+353 89 876 5432", points:1950, since:"2023-08-07", tier:"Silver", addr:"5 The Crescent, Dundrum, Dublin 16", county:"Dublin" },
+  { email:"david@example.com", name:"David O'Connor", phone:"+353 86 111 2222", points:980, since:"2024-02-18", tier:"Standard", addr:"14 Henry Street, Dublin 1", county:"Dublin" },
+  { email:"claire@example.com", name:"Claire Cleary", phone:"+353 87 333 4444", points:2100, since:"2023-05-30", tier:"Gold", addr:"28 Oliver Plunkett Street, Cork", county:"Cork" },
+  { email:"fionn@example.com", name:"Fionnuala Fitzgerald", phone:"+353 85 555 6666", points:670, since:"2024-07-22", tier:"Standard", addr:"3 The Mall, Waterford", county:"Waterford" },
+  { email:"patrick@example.com", name:"Patrick Kavanagh", phone:"+353 83 777 8888", points:3400, since:"2022-09-14", tier:"Gold", addr:"19 O'Connell Avenue, Limerick", county:"Limerick" },
+  { email:"siobhan@example.com", name:"Síobhán Ní Dhubhghaill", phone:"+353 89 999 0000", points:880, since:"2024-04-05", tier:"Standard", addr:"7 Rock Road, Blackrock, Dublin", county:"Dublin" },
+  { email:"eoin@example.com", name:"Eoin Gallagher", phone:"+353 86 444 5555", points:1550, since:"2023-10-11", tier:"Silver", addr:"45 Shop Street, Galway", county:"Galway" },
+  { email:"grainne@example.com", name:"Gráinne Ní Mhaoilíosa", phone:"+353 87 666 7777", points:420, since:"2025-01-08", tier:"Standard", addr:"12 Main Street, Dundalk", county:"Louth" },
+  { email:"tom@example.com", name:"Tommy Carroll", phone:"+353 85 888 9999", points:1880, since:"2023-07-19", tier:"Silver", addr:"8 The Green, Stillorgan, Dublin", county:"Dublin" },
+  { email:"riona@example.com", name:"Ríona Nic an Rí", phone:"+353 83 111 2222", points:2650, since:"2023-02-25", tier:"Gold", addr:"22 Patrick Hill, Kilkenny", county:"Kilkenny" },
+  { email:"declan@example.com", name:"Declan Brennan", phone:"+353 89 333 4444", points:720, since:"2024-06-14", tier:"Standard", addr:"5 Summerhill Avenue, Sligo", county:"Sligo" },
+  { email:"aileen@example.com", name:"Aileen O'Reilly", phone:"+353 86 555 6666", points:1900, since:"2023-09-03", tier:"Silver", addr:"16 The Folly, Drogheda", county:"Louth" },
+  { email:"brendan@example.com", name:"Brendan Dunne", phone:"+353 87 777 8888", points:510, since:"2024-12-01", tier:"Standard", addr:"29 Castle Street, Ennis", county:"Clare" },
+  { email:"caitriona@example.com", name:"Caitríona Ní Bhroin", phone:"+353 85 999 0000", points:3100, since:"2022-08-12", tier:"Gold", addr:"11 The Rise, Rathfarnham, Dublin", county:"Dublin" },
+  { email:"damien@example.com", name:"Damien Ryan", phone:"+353 83 222 3333", points:1340, since:"2023-12-20", tier:"Silver", addr:"4 Cathedral Road, Letterkenny", county:"Donegal" },
+  { email:"elaine@example.com", name:"Elaine Scully", phone:"+353 89 444 5555", points:680, since:"2024-10-15", tier:"Standard", addr:"20 Duke Street, Athlone", county:"Westmeath" },
+  { email:"fiachra@example.com", name:"Fiachra Mac Mathúna", phone:"+353 86 666 7777", points:2400, since:"2023-04-08", tier:"Gold", addr:"9 College Road, Killarney", county:"Kerry" },
+  { email:"helen@example.com", name:"Helen O'Doherty", phone:"+353 87 888 9999", points:1100, since:"2024-03-27", tier:"Silver", addr:"15 Abbey Street, Naas", county:"Kildare" },
+  { email:"ian@example.com", name:"Ian Whelan", phone:"+353 85 111 2222", points:390, since:"2025-02-19", tier:"Standard", addr:"2 The Court, Bray", county:"Wicklow" },
+  { email:"julia@example.com", name:"Julia McMahon", phone:"+353 83 333 4444", points:2750, since:"2023-01-05", tier:"Gold", addr:"18 Friar Street, Cashel", county:"Tipperary" },
+  { email:"kevin@example.com", name:"Kevin Flynn", phone:"+353 89 555 6666", points:820, since:"2024-08-30", tier:"Standard", addr:"6 Riverside, Celbridge", county:"Kildare" },
+  { email:"lisa@example.com", name:"Lisa Coughlan", phone:"+353 86 777 8888", points:2050, since:"2023-06-01", tier:"Silver", addr:"10 Market Square, Portlaoise", county:"Laois" },
+  { email:"michael@example.com", name:"Michael Farrell", phone:"+353 87 999 0000", points:1500, since:"2023-11-15", tier:"Silver", addr:"25 Bridge Street, Ballina", county:"Mayo" },
+  { email:"noelle@example.com", name:"Noelle O'Keeffe", phone:"+353 85 222 3333", points:630, since:"2024-09-10", tier:"Standard", addr:"13 Glen Road, Carlow", county:"Carlow" },
+  { email:"orla@example.com", name:"Orla Ni Chonaill", phone:"+353 83 444 5555", points:3200, since:"2022-07-04", tier:"Gold", addr:"1 The Crescent, Monkstown, Dublin", county:"Dublin" },
+  { email:"peter@example.com", name:"Peter Smyth", phone:"+353 89 666 7777", points:1050, since:"2024-01-28", tier:"Silver", addr:"24 Harbour View, Dunmore East", county:"Waterford" },
 ];
 
 const ORDERS = [
-  // ── Rashmi Manjunath (4 orders) ──
-  { id:"IE-2024-001", email:"rashmi@example.com", date:"2024-11-20", status:"delivered", items:[{ id:"MALM-001", name:"MALM Bed frame with storage", qty:1, price:395 },{ id:"MALM-002", name:"MALM Chest of 6 drawers", qty:1, price:199 }], total:594, addr:"12 Ailesbury Road, Dublin 4", courier:"DHL Express", tracking:"DHL-EI-82930123", payment:"Visa ···· 4321", delivered:"2024-11-27", method:"Home Delivery", points:59 },
-  { id:"IE-2024-010", email:"rashmi@example.com", date:"2024-08-03", status:"delivered", items:[{ id:"KIVIK-001", name:"KIVIK 3-Seater Sofa with chaise", qty:1, price:695 },{ id:"LACK-001", name:"LACK Side table", qty:2, price:12 }], total:719, addr:"12 Ailesbury Road, Dublin 4", courier:"DHL Express", tracking:"DHL-EI-76543219", payment:"Mastercard ···· 8765", delivered:"2024-08-10", method:"Home Delivery", points:72 },
-  { id:"IE-2025-002", email:"rashmi@example.com", date:"2025-06-15", status:"shipped", items:[{ id:"BILLY-001", name:"BILLY Bookcase", qty:2, price:89 },{ id:"LACK-001", name:"LACK Side table", qty:2, price:12 }], total:202, addr:"12 Ailesbury Road, Dublin 4", courier:"DPD Ireland", tracking:"DPD-EI-45217890", payment:"Visa ···· 4321", eta:"2025-06-22", method:"Home Delivery", points:20 },
-  { id:"IE-2025-014", email:"rashmi@example.com", date:"2025-05-01", status:"delivered", items:[{ id:"TROTTEN-001", name:"TROTTEN Desk 120 cm", qty:1, price:169 },{ id:"ALEX-001", name:"ALEX Drawer unit", qty:1, price:89 }], total:258, addr:"12 Ailesbury Road, Dublin 4", courier:"DPD Ireland", tracking:"DPD-EI-99887766", payment:"Visa ···· 4321", delivered:"2025-05-08", method:"Home Delivery", points:26 },
-
-  // ── Sarah Connor (3 orders) ──
-  { id:"IE-2024-003", email:"sarah@example.com", date:"2024-09-05", status:"delivered", items:[{ id:"KALLAX-001", name:"KALLAX Shelving unit", qty:2, price:75 },{ id:"KALLAX-002", name:"KALLAX Insert with box", qty:4, price:15 }], total:210, addr:"45 Merrion Square, Dublin 2", courier:"DHL Express", tracking:"DHL-EI-67543210", payment:"Mastercard ···· 9876", delivered:"2024-09-12", method:"Home Delivery", points:21 },
-  { id:"IE-2024-005", email:"sarah@example.com", date:"2024-10-15", status:"delivered", items:[{ id:"KIVIK-002", name:"KIVIK Loveseat", qty:1, price:450 },{ id:"LACK-002", name:"LACK Coffee table", qty:1, price:39 }], total:489, addr:"45 Merrion Square, Dublin 2", courier:"DPD Ireland", tracking:"DPD-EI-39876104", payment:"Visa ···· 5432", delivered:"2024-10-22", method:"Home Delivery", points:49 },
-  { id:"IE-2025-004", email:"sarah@example.com", date:"2025-03-28", status:"cancelled", items:[{ id:"KIVIK-001", name:"KIVIK 3-Seater Sofa with chaise", qty:1, price:695 }], total:695, addr:"45 Merrion Square, Dublin 2", payment:"Refunded to Visa ···· 5432", method:"Home Delivery", reason:"Customer changed mind — reordered EKTÖP instead", cancelled:"2025-03-30" },
-
-  // ── John Murphy (2 orders) ──
-  { id:"IE-2025-006", email:"john@example.com", date:"2025-06-10", status:"processing", items:[{ id:"PAX-001", name:"PAX Wardrobe frame 100 cm", qty:2, price:255 },{ id:"HEMNES-002", name:"HEMNES Bed frame with 3 drawers", qty:1, price:455 }], total:965, addr:"8 Temple Road, Dublin 6", payment:"Mastercard ···· 1122", method:"Home Delivery", eta:"2025-07-05", points:97 },
-  { id:"IE-2025-016", email:"john@example.com", date:"2025-07-12", status:"processing", items:[{ id:"MALM-003", name:"MALM Dressing table", qty:1, price:75 },{ id:"POÄNG-001", name:"POÄNG Armchair", qty:2, price:89 }], total:253, addr:"8 Temple Road, Dublin 6", payment:"Visa ···· 3344", method:"Home Delivery", eta:"2025-07-22", points:25 },
-
-  // ── Emma Walsh (3 orders) ──
-  { id:"IE-2024-007", email:"emma@example.com", date:"2024-12-01", status:"delivered", items:[{ id:"POÄNG-001", name:"POÄNG Armchair", qty:2, price:89 },{ id:"POÄNG-002", name:"POÄNG Footstool", qty:2, price:49 },{ id:"FRAKTA-001", name:"FRAKTA Shopping bag", qty:3, price:0.99 }], total:278.97, addr:"23 Howth Road, Dublin 5", courier:"DHL Express", tracking:"DHL-EI-11223344", payment:"Visa ···· 5566", delivered:"2024-12-09", method:"Home Delivery", points:28 },
-  { id:"IE-2025-008", email:"emma@example.com", date:"2025-04-20", status:"delivered", items:[{ id:"BESTÅ-001", name:"BESTÅ TV unit", qty:1, price:125 },{ id:"BESTÅ-002", name:"BESTÅ Wall shelf", qty:2, price:30 }], total:185, addr:"23 Howth Road, Dublin 5", courier:"DPD Ireland", tracking:"DPD-EI-55667788", payment:"Mastercard ···· 7788", delivered:"2025-04-27", method:"Home Delivery", points:19 },
-  { id:"IE-2025-017", email:"emma@example.com", date:"2025-06-28", status:"shipped", items:[{ id:"HEMNES-001", name:"HEMNES Chest of 8 drawers", qty:1, price:249 },{ id:"MALM-004", name:"MALM Desk", qty:1, price:59 }], total:308, addr:"23 Howth Road, Dublin 5", courier:"DPD Ireland", tracking:"DPD-EI-22334455", payment:"Visa ···· 5566", eta:"2025-07-06", method:"Home Delivery", points:31 },
-
-  // ── Ciarán O'Brien (2 orders) ──
-  { id:"IE-2025-009", email:"ciaran@example.com", date:"2025-07-01", status:"shipped", items:[{ id:"TROTTEN-001", name:"TROTTEN Desk 120 cm", qty:1, price:169 },{ id:"ALEX-001", name:"ALEX Drawer unit", qty:1, price:89 }], total:258, addr:"56 Capel Street, Dublin 1", courier:"DPD Ireland", tracking:"DPD-EI-99001122", payment:"Visa ···· 9900", eta:"2025-07-08", method:"Home Delivery", points:26 },
-  { id:"IE-2025-018", email:"ciaran@example.com", date:"2025-05-15", status:"delivered", items:[{ id:"LACK-002", name:"LACK Coffee table", qty:1, price:39 },{ id:"FRAKTA-001", name:"FRAKTA Shopping bag", qty:2, price:0.99 }], total:40.98, addr:"56 Capel Street, Dublin 1", courier:"DPD Ireland", tracking:"DPD-EI-55443322", payment:"Mastercard ···· 0011", delivered:"2025-05-19", method:"Home Delivery", points:4 },
-
-  // ── Aoife O'Sullivan (3 orders) ──
+  // ── Aoife O'Sullivan (1 order) ──
   { id:"IE-2024-011", email:"aoife@example.com", date:"2024-11-08", status:"delivered", items:[{ id:"BESTÅ-001", name:"BESTÅ TV unit", qty:1, price:125 },{ id:"KALLAX-001", name:"KALLAX Shelving unit", qty:3, price:75 }], total:350, addr:"17 Dun Laoghaire Road, Dublin 6", courier:"DHL Express", tracking:"DHL-EI-99881234", payment:"Visa ···· 2468", delivered:"2024-11-15", method:"Home Delivery", points:35 },
-  { id:"IE-2025-012", email:"aoife@example.com", date:"2025-03-15", status:"delivered", items:[{ id:"POÄNG-001", name:"POÄNG Armchair", qty:4, price:89 }], total:356, addr:"17 Dun Laoghaire Road, Dublin 6", courier:"DPD Ireland", tracking:"DPD-EI-77665544", payment:"Mastercard ···· 1357", delivered:"2025-03-22", method:"Home Delivery", points:36 },
-  { id:"IE-2025-019", email:"aoife@example.com", date:"2025-06-20", status:"shipped", items:[{ id:"KIVIK-001", name:"KIVIK 3-Seater Sofa with chaise", qty:1, price:695 },{ id:"LACK-001", name:"LACK Side table", qty:2, price:12 }], total:719, addr:"17 Dun Laoghaire Road, Dublin 6", courier:"DPD Ireland", tracking:"DPD-EI-88776655", payment:"Visa ···· 2468", eta:"2025-06-30", method:"Home Delivery", points:72 },
 
-  // ── Liam Kelly (2 orders) ──
+  // ── Liam Kelly (1 order) ──
   { id:"IE-2025-013", email:"liam@example.com", date:"2025-04-12", status:"delivered", items:[{ id:"BILLY-001", name:"BILLY Bookcase", qty:2, price:89 },{ id:"BILLY-002", name:"BILLY Bookcase with glass doors", qty:1, price:179 }], total:357, addr:"33 Patrick Street, Cork", courier:"DHL Express", tracking:"DHL-EI-66443322", payment:"Visa ···· 3579", delivered:"2025-04-19", method:"Home Delivery", points:36 },
-  { id:"IE-2025-020", email:"liam@example.com", date:"2025-05-24", status:"delivered", items:[{ id:"MALM-002", name:"MALM Chest of 6 drawers", qty:1, price:199 },{ id:"MALM-004", name:"MALM Desk", qty:1, price:59 }], total:258, addr:"33 Patrick Street, Cork", courier:"DPD Ireland", tracking:"DPD-EI-44332211", payment:"Mastercard ···· 8642", delivered:"2025-05-30", method:"Home Delivery", points:26 },
 
-  // ── Niamh Byrne (2 orders) ──
+  // ── Niamh Byrne (1 order) ──
   { id:"IE-2025-015", email:"niamh@example.com", date:"2025-06-05", status:"delivered", items:[{ id:"KURA-001", name:"KURA Reversible bed", qty:1, price:159 },{ id:"SMÅSTAD-001", name:"SMÅSTAD Storage system", qty:1, price:299 }], total:458, addr:"9 O'Connell Street, Limerick", courier:"DPD Ireland", tracking:"DPD-EI-66778899", payment:"Visa ···· 1414", delivered:"2025-06-12", method:"Home Delivery", points:46 },
-  { id:"IE-2025-021", email:"niamh@example.com", date:"2025-07-05", status:"processing", items:[{ id:"KALLAX-001", name:"KALLAX Shelving unit", qty:1, price:75 },{ id:"KALLAX-002", name:"KALLAX Insert with box", qty:2, price:15 }], total:105, addr:"9 O'Connell Street, Limerick", payment:"Mastercard ···· 2525", method:"Home Delivery", eta:"2025-07-16", points:11 },
 
-  // ── Seán McCarthy (3 orders) ──
-  { id:"IE-2024-022", email:"sean@example.com", date:"2024-12-18", status:"delivered", items:[{ id:"TROTTEN-002", name:"TROTTEN Sit/stand desk", qty:1, price:399 },{ id:"ALEX-001", name:"ALEX Drawer unit", qty:2, price:89 }], total:577, addr:"22 Main Street, Galway", courier:"DHL Express", tracking:"DHL-EI-33221100", payment:"Visa ···· 3690", delivered:"2024-12-28", method:"Home Delivery", points:58 },
-  { id:"IE-2025-023", email:"sean@example.com", date:"2025-02-10", status:"delivered", items:[{ id:"FJÄLLBO-001", name:"FJÄLLBO Ladder shelf", qty:2, price:39 },{ id:"GERTON-001", name:"GERTON Table", qty:1, price:55 }], total:133, addr:"22 Main Street, Galway", courier:"DPD Ireland", tracking:"DPD-EI-11002233", payment:"Mastercard ···· 8024", delivered:"2025-02-16", method:"Home Delivery", points:13 },
+  // ── Seán McCarthy (1 order) ──
   { id:"IE-2025-024", email:"sean@example.com", date:"2025-07-10", status:"processing", items:[{ id:"EKTÖP-001", name:"EKTÖP 3-Seater Sofa", qty:1, price:849 },{ id:"LACK-002", name:"LACK Coffee table", qty:1, price:39 }], total:888, addr:"22 Main Street, Galway", payment:"Visa ···· 3690", method:"Home Delivery", eta:"2025-07-28", points:89 },
 
-  // ── Máiréad Ní Raghallaigh (2 orders) ──
+  // ── Máiréad Ní Raghallaigh (1 order) ──
   { id:"IE-2024-025", email:"mairead@example.com", date:"2024-10-20", status:"delivered", items:[{ id:"MALM-005", name:"MALM Bed frame high", qty:1, price:295 },{ id:"HEMNES-001", name:"HEMNES Chest of 8 drawers", qty:1, price:249 }], total:544, addr:"5 The Crescent, Dundrum, Dublin 16", courier:"DHL Express", tracking:"DHL-EI-55119988", payment:"Visa ···· 7531", delivered:"2024-10-28", method:"Home Delivery", points:54 },
-  { id:"IE-2025-026", email:"mairead@example.com", date:"2025-07-08", status:"shipped", items:[{ id:"PAX-002", name:"PAX Wardrobe frame 150 cm", qty:1, price:325 },{ id:"BESTÅ-001", name:"BESTÅ TV unit", qty:1, price:125 }], total:450, addr:"5 The Crescent, Dundrum, Dublin 16", courier:"DPD Ireland", tracking:"DPD-EI-77551133", payment:"Mastercard ···· 9512", eta:"2025-07-15", method:"Home Delivery", points:45 },
+
+  // ── David O'Connor (1 order) ──
+  { id:"IE-2025-027", email:"david@example.com", date:"2025-05-20", status:"delivered", items:[{ id:"MALM-001", name:"MALM Bed frame with storage", qty:1, price:395 },{ id:"MALM-002", name:"MALM Chest of 6 drawers", qty:1, price:199 }], total:594, addr:"14 Henry Street, Dublin 1", courier:"DPD Ireland", tracking:"DPD-EI-12345678", payment:"Visa ···· 1122", delivered:"2025-05-28", method:"Home Delivery", points:59 },
+
+  // ── Claire Cleary (1 order) ──
+  { id:"IE-2025-028", email:"claire@example.com", date:"2025-06-22", status:"shipped", items:[{ id:"KIVIK-001", name:"KIVIK 3-Seater Sofa with chaise", qty:1, price:695 },{ id:"LACK-001", name:"LACK Side table", qty:2, price:12 }], total:719, addr:"28 Oliver Plunkett Street, Cork", courier:"DPD Ireland", tracking:"DPD-EI-23456789", payment:"Mastercard ···· 3344", eta:"2025-07-02", method:"Home Delivery", points:72 },
+
+  // ── Fionnuala Fitzgerald (1 order) ──
+  { id:"IE-2025-029", email:"fionn@example.com", date:"2025-07-14", status:"processing", items:[{ id:"MALM-003", name:"MALM Dressing table", qty:1, price:75 },{ id:"POÄNG-001", name:"POÄNG Armchair", qty:2, price:89 }], total:253, addr:"3 The Mall, Waterford", payment:"Visa ···· 5566", method:"Home Delivery", eta:"2025-07-25", points:25 },
+
+  // ── Patrick Kavanagh (1 order) ──
+  { id:"IE-2024-030", email:"patrick@example.com", date:"2024-12-15", status:"delivered", items:[{ id:"PAX-001", name:"PAX Wardrobe frame 100 cm", qty:2, price:255 },{ id:"PAX-002", name:"PAX Wardrobe frame 150 cm", qty:1, price:325 }], total:835, addr:"19 O'Connell Avenue, Limerick", courier:"DHL Express", tracking:"DHL-EI-34567890", payment:"Mastercard ···· 7788", delivered:"2024-12-22", method:"Home Delivery", points:84 },
+
+  // ── Síobhán Ní Dhubhghaill (1 order) ──
+  { id:"IE-2025-031", email:"siobhan@example.com", date:"2025-03-05", status:"delivered", items:[{ id:"KALLAX-001", name:"KALLAX Shelving unit", qty:1, price:75 },{ id:"KALLAX-002", name:"KALLAX Insert with box", qty:4, price:15 }], total:135, addr:"7 Rock Road, Blackrock, Dublin", courier:"DPD Ireland", tracking:"DPD-EI-45678901", payment:"Visa ···· 9900", delivered:"2025-03-11", method:"Home Delivery", points:14 },
+
+  // ── Eoin Gallagher (1 order) ──
+  { id:"IE-2025-032", email:"eoin@example.com", date:"2025-05-30", status:"shipped", items:[{ id:"TROTTEN-002", name:"TROTTEN Sit/stand desk", qty:1, price:399 },{ id:"ALEX-001", name:"ALEX Drawer unit", qty:1, price:89 }], total:488, addr:"45 Shop Street, Galway", courier:"DPD Ireland", tracking:"DPD-EI-56789012", payment:"Visa ···· 1122", eta:"2025-06-08", method:"Home Delivery", points:49 },
+
+  // ── Gráinne Ní Mhaoilíosa (1 order) ──
+  { id:"IE-2025-033", email:"grainne@example.com", date:"2025-06-28", status:"delivered", items:[{ id:"LACK-002", name:"LACK Coffee table", qty:1, price:39 },{ id:"FRAKTA-001", name:"FRAKTA Shopping bag", qty:3, price:0.99 }], total:41.97, addr:"12 Main Street, Dundalk", courier:"DPD Ireland", tracking:"DPD-EI-67890123", payment:"Mastercard ···· 3344", delivered:"2025-07-02", method:"Home Delivery", points:4 },
+
+  // ── Tommy Carroll (1 order) ──
+  { id:"IE-2024-034", email:"tom@example.com", date:"2024-09-20", status:"delivered", items:[{ id:"KIVIK-002", name:"KIVIK Loveseat", qty:1, price:450 },{ id:"LACK-002", name:"LACK Coffee table", qty:1, price:39 }], total:489, addr:"8 The Green, Stillorgan, Dublin", courier:"DHL Express", tracking:"DHL-EI-78901234", payment:"Visa ···· 5566", delivered:"2024-09-28", method:"Home Delivery", points:49 },
+
+  // ── Ríona Nic an Rí (1 order) ──
+  { id:"IE-2025-035", email:"riona@example.com", date:"2025-02-18", status:"delivered", items:[{ id:"BESTÅ-001", name:"BESTÅ TV unit", qty:1, price:125 },{ id:"BESTÅ-002", name:"BESTÅ Wall shelf", qty:2, price:30 }], total:185, addr:"22 Patrick Hill, Kilkenny", courier:"DPD Ireland", tracking:"DPD-EI-89012345", payment:"Mastercard ···· 7788", delivered:"2025-02-24", method:"Home Delivery", points:19 },
+
+  // ── Declan Brennan (1 order) ──
+  { id:"IE-2025-036", email:"declan@example.com", date:"2025-07-02", status:"shipped", items:[{ id:"MALM-004", name:"MALM Desk", qty:1, price:59 },{ id:"POÄNG-001", name:"POÄNG Armchair", qty:1, price:89 }], total:148, addr:"5 Summerhill Avenue, Sligo", courier:"DPD Ireland", tracking:"DPD-EI-90123456", payment:"Visa ···· 9900", eta:"2025-07-10", method:"Home Delivery", points:15 },
+
+  // ── Aileen O'Reilly (1 order) ──
+  { id:"IE-2024-037", email:"aileen@example.com", date:"2024-10-05", status:"delivered", items:[{ id:"HEMNES-001", name:"HEMNES Chest of 8 drawers", qty:1, price:249 },{ id:"HEMNES-002", name:"HEMNES Bed frame with 3 drawers", qty:1, price:455 }], total:704, addr:"16 The Folly, Drogheda", courier:"DHL Express", tracking:"DHL-EI-01234567", payment:"Mastercard ···· 1122", delivered:"2024-10-13", method:"Home Delivery", points:70 },
+
+  // ── Brendan Dunne (1 order) ──
+  { id:"IE-2025-038", email:"brendan@example.com", date:"2025-06-01", status:"cancelled", items:[{ id:"EKTÖP-001", name:"EKTÖP 3-Seater Sofa", qty:1, price:849 }], total:849, addr:"29 Castle Street, Ennis", payment:"Refunded to Visa ···· 3344", method:"Home Delivery", reason:"Delivery address changed — will reorder", cancelled:"2025-06-03" },
+
+  // ── Caitríona Ní Bhroin (1 order) ──
+  { id:"IE-2024-039", email:"caitriona@example.com", date:"2024-11-12", status:"delivered", items:[{ id:"MALM-005", name:"MALM Bed frame high", qty:1, price:295 },{ id:"MALM-002", name:"MALM Chest of 6 drawers", qty:1, price:199 }], total:494, addr:"11 The Rise, Rathfarnham, Dublin", courier:"DHL Express", tracking:"DHL-EI-12345098", payment:"Visa ···· 5566", delivered:"2024-11-20", method:"Home Delivery", points:49 },
+
+  // ── Damien Ryan (1 order) ──
+  { id:"IE-2025-040", email:"damien@example.com", date:"2025-07-05", status:"processing", items:[{ id:"TROTTEN-001", name:"TROTTEN Desk 120 cm", qty:1, price:169 },{ id:"ALEX-001", name:"ALEX Drawer unit", qty:1, price:89 }], total:258, addr:"4 Cathedral Road, Letterkenny", payment:"Mastercard ···· 7788", method:"Home Delivery", eta:"2025-07-18", points:26 },
+
+  // ── Elaine Scully (1 order) ──
+  { id:"IE-2025-041", email:"elaine@example.com", date:"2025-06-10", status:"delivered", items:[{ id:"KALLAX-001", name:"KALLAX Shelving unit", qty:1, price:75 },{ id:"FRAKTA-001", name:"FRAKTA Shopping bag", qty:2, price:0.99 }], total:76.98, addr:"20 Duke Street, Athlone", courier:"DPD Ireland", tracking:"DPD-EI-23456780", payment:"Visa ···· 9900", delivered:"2025-06-15", method:"Home Delivery", points:8 },
+
+  // ── Fiachra Mac Mathúna (1 order) ──
+  { id:"IE-2024-042", email:"fiachra@example.com", date:"2024-08-22", status:"delivered", items:[{ id:"POÄNG-001", name:"POÄNG Armchair", qty:2, price:89 },{ id:"POÄNG-002", name:"POÄNG Footstool", qty:2, price:49 }], total:276, addr:"9 College Road, Killarney", courier:"DHL Express", tracking:"DHL-EI-34567891", payment:"Mastercard ···· 1122", delivered:"2024-08-30", method:"Home Delivery", points:28 },
+
+  // ── Helen O'Doherty (1 order) ──
+  { id:"IE-2025-043", email:"helen@example.com", date:"2025-04-15", status:"delivered", items:[{ id:"BILLY-001", name:"BILLY Bookcase", qty:1, price:89 },{ id:"BILLY-002", name:"BILLY Bookcase with glass doors", qty:1, price:179 }], total:268, addr:"15 Abbey Street, Naas", courier:"DPD Ireland", tracking:"DPD-EI-45678902", payment:"Visa ···· 3344", delivered:"2025-04-22", method:"Home Delivery", points:27 },
+
+  // ── Ian Whelan (1 order) ──
+  { id:"IE-2025-044", email:"ian@example.com", date:"2025-07-11", status:"processing", items:[{ id:"MALM-001", name:"MALM Bed frame with storage", qty:1, price:395 }], total:395, addr:"2 The Court, Bray", payment:"Visa ···· 5566", method:"Home Delivery", eta:"2025-07-22", points:40 },
+
+  // ── Julia McMahon (1 order) ──
+  { id:"IE-2024-045", email:"julia@example.com", date:"2024-12-28", status:"delivered", items:[{ id:"GERTON-001", name:"GERTON Table", qty:1, price:55 },{ id:"FJÄLLBO-001", name:"FJÄLLBO Ladder shelf", qty:2, price:39 }], total:133, addr:"18 Friar Street, Cashel", courier:"DPD Ireland", tracking:"DPD-EI-56789023", payment:"Mastercard ···· 7788", delivered:"2025-01-04", method:"Home Delivery", points:13 },
+
+  // ── Kevin Flynn (1 order) ──
+  { id:"IE-2025-046", email:"kevin@example.com", date:"2025-05-10", status:"delivered", items:[{ id:"LACK-001", name:"LACK Side table", qty:2, price:12 },{ id:"LACK-002", name:"LACK Coffee table", qty:1, price:39 }], total:63, addr:"6 Riverside, Celbridge", courier:"DPD Ireland", tracking:"DPD-EI-67890134", payment:"Visa ···· 9900", delivered:"2025-05-14", method:"Home Delivery", points:6 },
+
+  // ── Lisa Coughlan (1 order) ──
+  { id:"IE-2025-047", email:"lisa@example.com", date:"2025-06-18", status:"shipped", items:[{ id:"KIVIK-002", name:"KIVIK Loveseat", qty:1, price:450 },{ id:"LACK-001", name:"LACK Side table", qty:2, price:12 }], total:474, addr:"10 Market Square, Portlaoise", courier:"DPD Ireland", tracking:"DPD-EI-78901245", payment:"Mastercard ···· 1122", eta:"2025-06-27", method:"Home Delivery", points:47 },
+
+  // ── Michael Farrell (1 order) ──
+  { id:"IE-2025-048", email:"michael@example.com", date:"2025-05-05", status:"delivered", items:[{ id:"MALM-003", name:"MALM Dressing table", qty:1, price:75 },{ id:"POÄNG-002", name:"POÄNG Footstool", qty:1, price:49 }], total:124, addr:"25 Bridge Street, Ballina", courier:"DPD Ireland", tracking:"DPD-EI-89012356", payment:"Visa ···· 3344", delivered:"2025-05-10", method:"Home Delivery", points:12 },
+
+  // ── Noelle O'Keeffe (1 order) ──
+  { id:"IE-2025-049", email:"noelle@example.com", date:"2025-07-08", status:"shipped", items:[{ id:"SMÅSTAD-001", name:"SMÅSTAD Storage system", qty:1, price:299 },{ id:"KURA-001", name:"KURA Reversible bed", qty:1, price:159 }], total:458, addr:"13 Glen Road, Carlow", courier:"DPD Ireland", tracking:"DPD-EI-90123467", payment:"Mastercard ···· 5566", eta:"2025-07-16", method:"Home Delivery", points:46 },
+
+  // ── Orla Ni Chonaill (1 order) ──
+  { id:"IE-2025-050", email:"orla@example.com", date:"2025-03-22", status:"delivered", items:[{ id:"KIVIK-001", name:"KIVIK 3-Seater Sofa with chaise", qty:1, price:695 },{ id:"FRAKTA-001", name:"FRAKTA Shopping bag", qty:5, price:0.99 }], total:699.95, addr:"1 The Crescent, Monkstown, Dublin", courier:"DHL Express", tracking:"DHL-EI-01234578", payment:"Visa ···· 7788", delivered:"2025-03-30", method:"Home Delivery", points:70 },
+
+  // ── Peter Smyth (1 order) ──
+  { id:"IE-2025-051", email:"peter@example.com", date:"2025-06-12", status:"shipped", items:[{ id:"PAX-001", name:"PAX Wardrobe frame 100 cm", qty:1, price:255 },{ id:"MALM-004", name:"MALM Desk", qty:1, price:59 }], total:314, addr:"24 Harbour View, Dunmore East", courier:"DPD Ireland", tracking:"DPD-EI-11122334", payment:"Visa ···· 9900", eta:"2025-06-21", method:"Home Delivery", points:31 },
 ];
 
 const STORE = {
@@ -914,9 +968,11 @@ const OFFERS = [
 // STATE & REFS
 // ════════════════════════════════════════════════════════════════
 const SK = 'ikea_key', ST = 'ikea_type', DK = 'ikea_dark';
-let apiKey = localStorage.getItem(SK) || '';
-let apiType = localStorage.getItem(ST) || 'openai';
-let demo = false;
+const HARD_KEY = 'HARD_KEY_PLACEHOLDER';
+localStorage.setItem(SK, HARD_KEY);
+localStorage.setItem(ST, 'openai');
+let apiKey = HARD_KEY;
+let apiType = 'openai';
 let dark = localStorage.getItem(DK) === 'true';
 let msgs = [];
 
@@ -924,7 +980,7 @@ const $ = id => document.getElementById(id);
 const chatMsgs = $('chatMsgs'), chatInput = $('chatInput'), sendBtn = $('sendBtn');
 const toolLog = $('toolLog'), statusDot = $('statusDot'), statusText = $('statusText');
 const sb = $('sidebarBody'), sRes = $('sidebarResults'), sEmpty = $('sidebarEmpty');
-const rCount = $('resultCount'), demoTag = $('demoTag');
+const rCount = $('resultCount');
 
 // ════════════════════════════════════════════════════════════════
 // UI HELPERS
@@ -963,12 +1019,85 @@ function addThink() {
 
 function rmThink() { const e = $('thinkMsg'); if(e) e.remove(); }
 
-function showSpreadsheet() {
-  const data = TOOLS.view_transaction_log.fn({});
-  data.then(r => {
-    showRes(spreadsheetHTML(r.orders, r.summary), `${r.orders.length} orders`);
-    addMsg('bot', `<strong>📊 Customer Transaction Log</strong><br>${r.summary.total} orders · €${r.summary.revenue.toFixed(2)} total revenue · €${r.summary.avgOrder.toFixed(2)} avg order<br><br>See the sidebar for the full spreadsheet view.`);
-  });
+function showDashboard() {
+  const total = ORDERS.length;
+  const revenue = ORDERS.reduce((s, o) => s + o.total, 0);
+  const avgOrder = revenue / total;
+  const byStatus = {};
+  ORDERS.forEach(o => { byStatus[o.status] = (byStatus[o.status]||0) + 1; });
+  const byCat = {};
+  const prodSales = {};
+  ORDERS.forEach(o => o.items.forEach(i => {
+    prodSales[i.name] = (prodSales[i.name]||0) + i.qty;
+    const p = PRODUCTS.find(x => x.id === i.id);
+    if (p) byCat[p.cat] = (byCat[p.cat]||0) + i.qty * i.price;
+  }));
+  const topProds = Object.entries(prodSales).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const cats = Object.entries(byCat).sort((a,b) => b[1]-a[1]);
+  const byTier = {};
+  CUSTOMERS.forEach(c => { byTier[c.tier] = (byTier[c.tier]||0) + 1; });
+
+  const statusColors = { delivered:'#16a34a', shipped:'#0051ba', processing:'#ea580c', cancelled:'#dc2626' };
+  const statusBgs = { delivered:'#f0fdf4', shipped:'#eef4fb', processing:'#fff7ed', cancelled:'#fef2f2' };
+
+  const html = `
+    <div style="padding:4px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        <div style="background:var(--blue-50);padding:10px;border-radius:8px;text-align:center">
+          <div style="font-size:1.2rem;font-weight:700;color:var(--blue)">${total}</div>
+          <div style="font-size:0.58rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em">Orders</div>
+        </div>
+        <div style="background:var(--green-50);padding:10px;border-radius:8px;text-align:center">
+          <div style="font-size:1.2rem;font-weight:700;color:var(--green)">€${revenue.toFixed(0)}</div>
+          <div style="font-size:0.58rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em">Revenue</div>
+        </div>
+        <div style="background:var(--blue-50);padding:10px;border-radius:8px;text-align:center">
+          <div style="font-size:1.2rem;font-weight:700;color:var(--blue)">€${avgOrder.toFixed(0)}</div>
+          <div style="font-size:0.58rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em">Avg Order</div>
+        </div>
+        <div style="background:var(--orange-50);padding:10px;border-radius:8px;text-align:center">
+          <div style="font-size:1.2rem;font-weight:700;color:var(--orange)">${CUSTOMERS.length}</div>
+          <div style="font-size:0.58rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em">Customers</div>
+        </div>
+      </div>
+
+      <div style="font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-tertiary);margin-bottom:6px">Orders by Status</div>
+      <div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap">
+        ${Object.entries(byStatus).map(([k,v]) =>
+          `<span style="font-size:0.6rem;font-weight:600;padding:3px 10px;border-radius:12px;background:${statusBgs[k]||'var(--gray-50)'};color:${statusColors[k]||'var(--text-secondary)'}">${k} ${v}</span>`
+        ).join('')}
+      </div>
+
+      <div style="font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-tertiary);margin-bottom:4px">Top Products</div>
+      <div style="margin-bottom:10px">
+        ${topProds.map(([name, qty], i) => `
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.64rem">
+            <span style="color:var(--text)"><span style="color:var(--text-tertiary);margin-right:5px">#${i+1}</span>${name}</span>
+            <span style="font-weight:600;color:var(--blue)">${qty} sold</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-tertiary);margin-bottom:4px">Revenue by Category</div>
+      <div style="margin-bottom:10px">
+        ${cats.map(([cat, rev]) => `
+          <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:0.64rem">
+            <span style="color:var(--text)">${CAT_ICONS[cat]||'📦'} ${cat}</span>
+            <span style="font-weight:600;color:var(--blue)">€${rev.toFixed(0)}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-tertiary);margin-bottom:4px">Customer Tiers</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${Object.entries(byTier).map(([k,v]) =>
+          `<span style="font-size:0.6rem;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--gray-50);color:var(--text-secondary)">${k} ${v}</span>`
+        ).join('')}
+      </div>
+    </div>
+  `;
+  showRes(html, `${total} orders`);
+  addMsg('bot', `<strong>📊 Business Dashboard</strong><br>${total} orders · €${revenue.toFixed(2)} revenue · ${CUSTOMERS.length} customers · €${avgOrder.toFixed(2)} avg order`);
 }
 
 function clrRes() { sRes.style.display='none'; sRes.innerHTML=''; sEmpty.style.display='flex'; rCount.textContent=''; }
@@ -977,30 +1106,6 @@ function showRes(html, count) {
   sEmpty.style.display='none'; sRes.style.display='block'; sRes.innerHTML=html;
   rCount.textContent = count ? `${count}` : '';
   sb.scrollTop = 0;
-}
-
-function generateCSV() {
-  const headers = "Order ID,Customer Name,Email,Phone,Order Date,Status,Item Name,Item ID,Qty,Unit Price (€),Line Total (€),Order Total (€),Delivery Address,County,Payment Method,Delivery Method,Courier,Tracking Number,Delivered Date,ETA Date,IKEA Family Points,IKEA Family Tier,Notes";
-  const rows = [];
-  ORDERS.forEach(o => {
-    const c = CUSTOMERS.find(x => x.email === o.email);
-    const esc = s => `"${(s||'').replace(/"/g,'""')}"`;
-    o.items.forEach(item => {
-      rows.push([o.id, c?.name||'', o.email, c?.phone||'', o.date, o.status, item.name, item.id, item.qty, item.price, (item.qty*item.price).toFixed(2), o.total.toFixed(2), o.addr, c?.county||'', o.payment||'', o.method||'', o.courier||'', o.tracking||'', o.delivered||'', o.eta||'', o.points||'', c?.tier||'', o.reason||''].map(esc).join(','));
-    });
-  });
-  return headers + '\n' + rows.join('\n');
-}
-
-function downloadCSV() {
-  const csv = generateCSV();
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `ikea_transactions_${new Date().toISOString().slice(0,10)}.csv`;
-  link.click();
-  URL.revokeObjectURL(link.href);
-  addMsg('bot', `📥 Downloaded <strong>ikea_transactions.csv</strong> — ${ORDERS.reduce((s,o) => s+o.items.length, 0)} line items across ${ORDERS.length} orders. Import into Google Sheets: <strong>File → Import → Upload</strong>`);
 }
 
 function productIcon(p) {
@@ -1049,38 +1154,6 @@ function oCard(o) {
     ${o.eta?`<div class="oc-track">🚚 Est. ${o.eta}</div>`:''}
     ${o.reason?`<div class="oc-reason">${o.reason}</div>`:''}
     ${o.cancelled?`<div class="oc-track" style="color:var(--red)">❌ Cancelled ${o.cancelled}</div>`:''}
-  </div>`;
-}
-
-function spreadsheetHTML(orders, summary) {
-  const rows = orders.map(o => {
-    const c = CUSTOMERS.find(c => c.email === o.email);
-    return `<tr>
-      <td style="font-weight:600;font-size:0.64rem">${o.id}</td>
-      <td style="font-size:0.64rem">${c?.name||'Unknown'}</td>
-      <td style="font-size:0.58rem;color:var(--text-tertiary)">${o.email}</td>
-      <td style="font-size:0.6rem">${new Date(o.date).toLocaleDateString('en-IE',{day:'numeric',month:'short'})}</td>
-      <td style="font-size:0.6rem">${o.items.length} item${o.items.length>1?'s':''}</td>
-      <td style="font-weight:600;font-size:0.66rem;color:var(--blue)">€${o.total.toFixed(2)}</td>
-      <td><span class="oc-badge s-${o.status}" style="font-size:0.48rem">${o.status}</span></td>
-      <td style="font-size:0.56rem;color:var(--text-tertiary)">${o.payment?.replace(/·.*/,'···')||'—'}</td>
-      <td style="font-size:0.56rem;color:var(--text-tertiary)">${o.method||'—'}</td>
-      <td style="font-size:0.52rem;color:var(--text-tertiary);font-family:monospace">${o.tracking||'—'}</td>
-      <td style="font-size:0.56rem">${o.delivered||o.eta||'—'}</td>
-    </tr>`;
-  }).join('');
-  return `<div style="overflow-x:auto">
-    <div style="display:flex;gap:16px;padding:8px 2px 12px;flex-wrap:wrap">
-      <div style="background:var(--blue-50);padding:6px 14px;border-radius:8px;font-size:0.7rem"><strong>${summary.total}</strong> orders</div>
-      <div style="background:var(--green-50);padding:6px 14px;border-radius:8px;font-size:0.7rem"><strong>€${summary.revenue.toFixed(2)}</strong> revenue</div>
-      <div style="background:var(--blue-50);padding:6px 14px;border-radius:8px;font-size:0.7rem"><strong>€${summary.avgOrder.toFixed(2)}</strong> avg order</div>
-    </div>
-    <table style="width:100%;border-collapse:collapse;font-size:0.6rem">
-      <thead><tr style="border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:0.04em;font-size:0.55rem;color:var(--text-tertiary)">
-        <th style="padding:6px 4px;text-align:left">Order</th><th style="padding:6px 4px;text-align:left">Customer</th><th style="padding:6px 4px;text-align:left">Email</th><th style="padding:6px 4px;text-align:left">Date</th><th style="padding:6px 4px;text-align:left">Items</th><th style="padding:6px 4px;text-align:right">Total</th><th style="padding:6px 4px;text-align:center">Status</th><th style="padding:6px 4px;text-align:left">Payment</th><th style="padding:6px 4px;text-align:left">Method</th><th style="padding:6px 4px;text-align:left">Tracking</th><th style="padding:6px 4px;text-align:left">ETA/Delivered</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
   </div>`;
 }
 
@@ -1163,34 +1236,11 @@ const TOOLS = {
     desc:"Get current IKEA Family offers and member benefits",
     fn:async () => ({ offers:OFFERS })
   },
-  download_csv: {
-    desc:"Download the complete IKEA transaction log as a CSV file for Google Sheets or Excel",
-    fn:async () => {
-      const csv = generateCSV();
-      return { message:"CSV generated", rows:csv.split('\n').length - 1, size:`${(new Blob([csv]).size / 1024).toFixed(1)} KB` };
-    }
-  },
   categories: {
     desc:"List all IKEA product categories with product counts",
     fn:async () => {
       const m = {}; PRODUCTS.forEach(p => { m[p.cat] = (m[p.cat]||0) + 1; });
       return { categories:Object.entries(m).map(([k,v]) => ({ name:k, count:v })).sort((a,b) => b.count - a.count) };
-    }
-  },
-  view_transaction_log: {
-    desc:"View the complete IKEA customer transaction log — all orders in a spreadsheet format",
-    params:{ email:"Filter by customer email (optional)", status:"Filter by status (optional)" },
-    fn:async ({ email, status }) => {
-      let orders = [...ORDERS];
-      if (email) orders = orders.filter(o => o.email.toLowerCase() === email.toLowerCase());
-      if (status) orders = orders.filter(o => o.status.toLowerCase() === status.toLowerCase());
-      const customers = {};
-      CUSTOMERS.forEach(c => { customers[c.email] = c; });
-      return {
-        orders: orders.sort((a,b) => new Date(b.date) - new Date(a.date)),
-        summary: { total:orders.length, revenue:Math.round(orders.reduce((s,o) => s+o.total, 0)*100)/100, avgOrder:orders.length ? Math.round(orders.reduce((s,o) => s+o.total, 0)/orders.length*100)/100 : 0 },
-        columns: ["Order ID","Customer","Email","Date","Items","Total","Status","Payment","Delivery","Tracking","Delivered/ETA"]
-      };
     }
   }
 };
@@ -1238,104 +1288,6 @@ async function exec(name, args) {
 // DEMO
 // ════════════════════════════════════════════════════════════════
 
-function toggleDemo() {
-  demo = !demo;
-  if (demo) {
-    setStatus(true, 'Demo mode'); demoTag.style.display = 'inline'; $('demoBtn').textContent = '🛑 Stop';
-    addMsg('bot', '🎯 <strong>Demo mode</strong> activated! I\'ll use built-in IKEA data. Try searching products or tracking an order.');
-  } else {
-    demoTag.style.display = 'none'; $('demoBtn').textContent = '🎯 Demo';
-    apiKey ? setStatus(true, 'Connected') : setStatus(false, 'Not connected');
-    addMsg('bot', 'Demo mode deactivated.');
-  }
-}
-
-async function demoResp(text) {
-  addThink();
-  try {
-    const q = text.toLowerCase();
-    const email = q.match(/[\w.-]+@[\w.-]+\.\w+/)?.[0] || null;
-    const named = { rashmi:'rashmi@example.com', sarah:'sarah@example.com', john:'john@example.com', emma:'emma@example.com', 'ciarán':'ciaran@example.com' };
-    const nEmail = Object.entries(named).find(([k]) => q.includes(k))?.[1] || null;
-    const lookup = email || nEmail;
-
-    // Store info
-    if (q.includes('store') || q.includes('ballymun') || q.includes('hour') || q.includes('open') || q.includes('direction') || q.includes('location') || q.includes('service') || q.includes('facilities')) {
-      const r = await exec('store_info');
-      rmThink();
-      const s = r.store;
-      addMsg('bot', `<strong>🏪 ${s.name}</strong><br><br>📍 ${s.addr}<br>📞 ${s.phone}<br><br>🕐 <strong>Opening Hours</strong><br>Mon–Fri: ${s.hours.mon_fri}<br>Sat: ${s.hours.sat}<br>Sun: ${s.hours.sun}<br><br>🛠️ <strong>Services</strong><br>${s.services.map(x => '• ' + x).join('<br>')}<br><br>📍 <strong>Facilities</strong><br>${s.facilities.map(x => '• ' + x).join('<br>')}`);
-      showRes(`<div class="empty-state" style="display:flex"><div class="es-icon">🏪</div><h3>${s.name}</h3><p>📍 ${s.addr}<br>📞 ${s.phone}<br><br>🕐 ${s.hours.mon_fri} Mon–Fri<br>🕐 ${s.hours.sat} Sat<br>🕐 ${s.hours.sun} Sun</p></div>`);
-      return;
-    }
-
-    // IKEA Family / Offers
-    if (q.includes('family') || q.includes('offer') || q.includes('deal') || q.includes('discount') || q.includes('member') || q.includes('benefit') || q.includes('reward')) {
-      const r = await exec('family_offers');
-      rmThink();
-      addMsg('bot', `<strong>💛 IKEA Family Offers</strong><br><br><ul>${r.offers.map(o => `<li><strong>${o.name}</strong> — ${o.desc} <span style="font-size:0.55rem;color:var(--text-tertiary)">[${o.type}]</span></li>`).join('')}</ul><br><a href="https://www.ikea.com/ie/en/ikea-family/" target="_blank" style="color:var(--blue)">👉 Join IKEA Family →</a>`);
-      return;
-    }
-
-    // Categories
-    if (q.includes('categor') || q.includes('department') || q.includes('section') || q.includes('all product') || q.includes('what do you have') || q.includes('everything')) {
-      const r = await exec('categories');
-      rmThink();
-      const list = r.categories.map(c => `<li><strong>${c.name}</strong> — ${c.count} products</li>`).join('');
-      addMsg('bot', `<strong>📂 Product Categories</strong><br><br><ul>${list}</ul><br>Which one interests you?`);
-      return;
-    }
-
-    // Orders / Purchase history
-    if (q.includes('order') || q.includes('track') || q.includes('delivery') || q.includes('ship') || q.includes('purchase') || q.includes('history') || q.includes('bought') || q.includes('where') || q.includes('status') || q.includes('delivered') || q.includes('processing')) {
-      const idMatch = q.match(/IE-\d{4}-\d{3,4}/i);
-      if (idMatch) {
-        const r = await exec('track_order', { orderId:idMatch[0].toUpperCase() });
-        rmThink();
-        if (r.error) { addMsg('bot', r.error); return; }
-        addMsg('bot', `<strong>📦 Order ${r.order.id}</strong><br>${oInl(r.order)}<br>👤 ${r.order.customer}<br>📍 ${r.order.addr}`);
-        showRes(oCard(r.order));
-        return;
-      }
-      const isHist = q.includes('history') || q.includes('purchase') || q.includes('bought') || q.includes('all order');
-      if (lookup) {
-        if (isHist) {
-          const r = await exec('purchase_history', { email:lookup });
-          rmThink();
-          if (r.error) { addMsg('bot', r.error); return; }
-          showRes(r.orders.map(o => oCard(o)).join(''), r.orders.length);
-          addMsg('bot', `<strong>📋 ${r.customer.name} · Purchase History</strong><br>📦 ${r.summary.total} orders · 💰 €${r.summary.spent.toFixed(2)} total · 💛 ${r.summary.points} Family points<br><br>See the sidebar for full details.`);
-          return;
-        } else {
-          const r = await exec('track_order', { email:lookup });
-          rmThink();
-          if (r.error) { addMsg('bot', r.error); return; }
-          showRes(r.orders.map(o => oCard(o)).join(''), r.orders.length);
-          const latest = r.orders[0];
-          addMsg('bot', `<strong>📦 Latest order for ${r.customer.name}</strong><br>${oInl(latest)}<br><br>${r.orders.length} order${r.orders.length>1?'s':''} total — see sidebar for all.`);
-          return;
-        }
-      }
-      rmThink();
-      addMsg('bot', 'I can track your orders! Please provide your <strong>email address</strong> (e.g., <code>rashmi@example.com</code>) or an <strong>order ID</strong> (e.g., <code>IE-2024-001</code>).');
-      return;
-    }
-
-    // Default: product search
-    const searchQ = q.replace(/^(show me|find me|search for|look for|i need|i want|i\'m looking for|tell me about|what is|what are|do you have|got any|any|recommend|suggest|show|find|search|need|want|looking)\s+/i, '').trim();
-    const r = await exec('search_products', { query:searchQ || q });
-    rmThink();
-    if (r.error) { addMsg('bot', r.error); return; }
-    if (!r.results.length) {
-      addMsg('bot', `❌ No products found for "${searchQ}". Try different keywords like <strong>bed</strong>, <strong>sofa</strong>, or <strong>storage</strong>.`);
-      return;
-    }
-    showRes(r.results.map(p => pCard(p)).join(''), r.total);
-    const top = r.results.slice(0,3).map(p => pInl(p)).join('');
-    addMsg('bot', `<strong>🔍 ${r.total} result${r.total>1?'s':''} for "${r.query}"</strong><br>${top}<br><br>See the sidebar for all results. Which one catches your eye?`);
-
-  } catch(e) { rmThink(); addMsg('bot', `⚠️ ${e.message}`); }
-}
 
 // ════════════════════════════════════════════════════════════════
 // OPENAI
@@ -1396,47 +1348,6 @@ async function openaiCall(text) {
 // GEMINI
 // ════════════════════════════════════════════════════════════════
 
-async function geminiCall(text) {
-  msgs.push({ role:'user', content:text });
-  const tools = Object.entries(TOOLS).map(([n,t]) => ({ name:n, description:t.desc, parameters:{ type:'object', properties:t.params?Object.entries(t.params).reduce((a,[k,v]) => { a[k] = { type:'string', description:v }; return a; }, {}):{}, required:t.params?Object.keys(t.params):[] } }));
-  const hist = msgs.slice(0,-1).map(m => ({ role:m.role==='user'?'user':'model', parts:[{ text:m.content||'' }] }));
-  addThink();
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-      method:'POST', headers:{ 'Content-Type':'application/json' },
-      body:JSON.stringify({ system_instruction:{ parts:[{ text:SYSTEM }] }, contents:[ ...hist, { role:'user', parts:[{ text }] } ], tools:[{ function_declarations:tools }], generationConfig:{ temperature:0.3 } })
-    });
-    const d = await res.json();
-    if (d.error) throw new Error(d.error.message);
-    let cand = d.candidates?.[0];
-    if (!cand) throw new Error('No response');
-    let part = cand.content?.parts?.[0];
-    let tRes = [], ui = [];
-
-    while (part?.functionCall) {
-      const fc = part.functionCall, args = fc.args||{};
-      let result;
-      try { result = await exec(fc.name, args); ui.push({ name:fc.name, args, res:result.error||'done', err:!!result.error }); }
-      catch(e) { result = { error:e.message }; ui.push({ name:fc.name, args, res:e.message, err:true }); }
-      tRes.push({ role:'function', parts:[{ functionResponse:{ name:fc.name, response:{ content:result } } }] });
-      const f = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-        method:'POST', headers:{ 'Content-Type':'application/json' },
-        body:JSON.stringify({ system_instruction:{ parts:[{ text:SYSTEM }] }, contents:[ ...hist, { role:'user', parts:[{ text }] }, { role:'model', parts:[{ functionCall:fc }] }, ...tRes ], generationConfig:{ temperature:0.3 } })
-      });
-      const fd = await f.json();
-      if (fd.error) throw new Error(fd.error.message);
-      cand = fd.candidates?.[0]; if (!cand) throw new Error('No response');
-      part = cand.content?.parts?.[0];
-      if (result.results?.length) showRes(result.results.map(x => pCard(x)).join(''), result.total);
-      else if (result.orders?.length) showRes(result.orders.map(x => oCard(x)).join(''), result.orders.length);
-      else if (result.order) showRes(oCard(result.order));
-    }
-    rmThink();
-    const t = part?.text||'';
-    addMsg('bot', t||'Done!', { tools:ui });
-    msgs.push({ role:'assistant', content:t||'' });
-  } catch(e) { rmThink(); addMsg('bot', `⚠️ ${e.message}`); }
-}
 
 // ════════════════════════════════════════════════════════════════
 // SEND
@@ -1448,9 +1359,7 @@ async function send() {
   chatInput.value = ''; sendBtn.disabled = true;
   addMsg('user', t);
   try {
-    if (demo) await demoResp(t);
-    else if (apiKey) { if (apiType === 'openai') await openaiCall(t); else await geminiCall(t); }
-    else addMsg('bot', '🔑 Please <strong>enter your API key</strong> or start <strong>Demo mode</strong> to begin.');
+    await openaiCall(t);
   } catch(e) { rmThink(); addMsg('bot', `⚠️ ${e.message}`); }
   sendBtn.disabled = false; chatInput.focus();
 }
@@ -1460,7 +1369,6 @@ chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 
 // ════════════════════════════════════════════════════════════════
 // SETUP / MODAL
-// ════════════════════════════════════════════════════════════════
 
 function showSetup() { $('setupModal').classList.remove('hidden'); $('apiKeyInput').value = apiKey; $('apiType').value = apiType; updHint(); }
 function closeSetup() { $('setupModal').classList.add('hidden'); }
@@ -1471,30 +1379,15 @@ function updHint() {
 }
 $('apiType').addEventListener('change', updHint);
 
-function saveSetup(useKey) {
+function saveSetup() {
   const k = $('apiKeyInput'), t = $('apiType');
-  if (useKey && k.value.trim()) {
+  if (k.value.trim()) {
     apiKey = k.value.trim(); apiType = t.value;
     localStorage.setItem(SK, apiKey); localStorage.setItem(ST, apiType);
     setStatus(true, `${apiType === 'openai' ? 'OpenAI' : 'Gemini'} connected`);
-    demo = false; demoTag.style.display = 'none'; $('demoBtn').textContent = '🎯 Demo';
     closeSetup();
-    addMsg('bot', `✅ <strong>${apiType === 'openai' ? 'OpenAI GPT-4o-mini' : 'Gemini 2.0 Flash'}</strong> connected! Ask me anything about IKEA.`);
-  } else if (!useKey) {
-    demo = true; apiKey = '';
-    localStorage.removeItem(SK); localStorage.removeItem(ST);
-    setStatus(true, 'Demo mode'); demoTag.style.display = 'inline'; $('demoBtn').textContent = '🛑 Stop';
-    closeSetup();
-    addMsg('bot', '🎯 <strong>Demo mode</strong> active! Try searching products, tracking orders, or getting store info.');
+    addMsg('bot', `✅ <strong>${apiType === 'openai' ? 'OpenAI GPT-4o-mini' : 'Gemini 2.0 Flash'}</strong> connected!`);
   }
-}
-
-function resetApp() {
-  localStorage.removeItem(SK); localStorage.removeItem(ST);
-  apiKey = ''; demo = false; msgs = [];
-  chatMsgs.innerHTML = ''; clrRes();
-  setStatus(false, 'Not connected'); demoTag.style.display = 'none'; $('demoBtn').textContent = '🎯 Demo';
-  addMsg('bot', '🔄 Reset complete. Enter your API key or start Demo mode.');
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1512,12 +1405,8 @@ if (dark) document.body.classList.add('dark');
 // ════════════════════════════════════════════════════════════════
 
 (function init() {
-  if (apiKey) {
-    setStatus(true, `${apiType === 'openai' ? 'OpenAI' : 'Gemini'} connected`);
-    addMsg('bot', `🔑 Welcome back! ${apiType === 'openai' ? 'OpenAI' : 'Gemini'} key loaded. How can I help you with IKEA today?`);
-  } else {
-    setTimeout(() => { if (!apiKey) showSetup(); }, 600);
-  }
+  setStatus(true, 'OpenAI connected');
+  addMsg('bot', `🔑 <strong>OpenAI GPT-4o-mini</strong> connected! Ask me anything about IKEA.`);
 })();
 </script>
 </body>
