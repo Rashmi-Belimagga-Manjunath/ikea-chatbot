@@ -677,6 +677,7 @@
         <h2><em>Results</em></h2>
         <div style="display:flex;align-items:center;gap:4px">
           <button class="ch-btn" onclick="showSpreadsheet()" title="View order spreadsheet" style="font-size:0.55rem;padding:3px 7px">📊 Sheet</button>
+          <button class="ch-btn" onclick="downloadCSV()" title="Download CSV for Google Sheets/Excel" style="font-size:0.55rem;padding:3px 7px">⬇ CSV</button>
           <span class="sidebar-count" id="resultCount"></span>
         </div>
       </div>
@@ -978,6 +979,30 @@ function showRes(html, count) {
   sb.scrollTop = 0;
 }
 
+function generateCSV() {
+  const headers = "Order ID,Customer Name,Email,Phone,Order Date,Status,Item Name,Item ID,Qty,Unit Price (€),Line Total (€),Order Total (€),Delivery Address,County,Payment Method,Delivery Method,Courier,Tracking Number,Delivered Date,ETA Date,IKEA Family Points,IKEA Family Tier,Notes";
+  const rows = [];
+  ORDERS.forEach(o => {
+    const c = CUSTOMERS.find(x => x.email === o.email);
+    const esc = s => `"${(s||'').replace(/"/g,'""')}"`;
+    o.items.forEach(item => {
+      rows.push([o.id, c?.name||'', o.email, c?.phone||'', o.date, o.status, item.name, item.id, item.qty, item.price, (item.qty*item.price).toFixed(2), o.total.toFixed(2), o.addr, c?.county||'', o.payment||'', o.method||'', o.courier||'', o.tracking||'', o.delivered||'', o.eta||'', o.points||'', c?.tier||'', o.reason||''].map(esc).join(','));
+    });
+  });
+  return headers + '\n' + rows.join('\n');
+}
+
+function downloadCSV() {
+  const csv = generateCSV();
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `ikea_transactions_${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  addMsg('bot', `📥 Downloaded <strong>ikea_transactions.csv</strong> — ${ORDERS.reduce((s,o) => s+o.items.length, 0)} line items across ${ORDERS.length} orders. Import into Google Sheets: <strong>File → Import → Upload</strong>`);
+}
+
 function productIcon(p) {
   const prefix = p.id.split('-')[0];
   return ICONS[prefix] || CAT_ICONS[p.cat] || '📦';
@@ -1137,6 +1162,13 @@ const TOOLS = {
   family_offers: {
     desc:"Get current IKEA Family offers and member benefits",
     fn:async () => ({ offers:OFFERS })
+  },
+  download_csv: {
+    desc:"Download the complete IKEA transaction log as a CSV file for Google Sheets or Excel",
+    fn:async () => {
+      const csv = generateCSV();
+      return { message:"CSV generated", rows:csv.split('\n').length - 1, size:`${(new Blob([csv]).size / 1024).toFixed(1)} KB` };
+    }
   },
   categories: {
     desc:"List all IKEA product categories with product counts",
