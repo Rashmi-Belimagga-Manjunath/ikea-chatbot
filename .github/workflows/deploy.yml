@@ -27,7 +27,17 @@ jobs:
         env:
           IKEA_KEY: ${{ secrets.IKEA_OPENAI_KEY }}
         run: |
-          node -e "require('fs').writeFileSync('index.html', require('fs').readFileSync('index.html','utf8').split('HARD_KEY_PLACEHOLDER').join(process.env.IKEA_KEY))"
+          python3 -c "
+import os, pathlib
+key = os.environ['IKEA_KEY']
+content = pathlib.Path('index.html').read_text()
+assert 'HARD_KEY_PLACEHOLDER' in content, 'Placeholder not found!'
+content = content.replace('HARD_KEY_PLACEHOLDER', key)
+pathlib.Path('index.html').write_text(content)
+print('Injection complete. Verifying...')
+assert key in pathlib.Path('index.html').read_text(), 'Injection verification failed!'
+print('Verified: API key successfully injected.')
+"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
