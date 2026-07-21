@@ -27,7 +27,7 @@ jobs:
         env:
           IKEA_KEY: ${{ secrets.IKEA_OPENAI_KEY }}
         run: |
-          awk -v key="$IKEA_KEY" '{gsub(/HARD_KEY_PLACEHOLDER/, key)}1' index.html > index.tmp && mv index.tmp index.html
+          node -e "require('fs').writeFileSync('index.html', require('fs').readFileSync('index.html','utf8').split('HARD_KEY_PLACEHOLDER').join(process.env.IKEA_KEY))"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
