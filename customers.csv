@@ -1,0 +1,31 @@
+email,name,phone,points,since,tier,addr,county
+aoife@example.com,Aoife O'Sullivan,+353 87 654 3210,4100,2022-04-10,Gold,"17 Dun Laoghaire Road, Dublin 6",Dublin
+liam@example.com,Liam Kelly,+353 86 789 0123,1250,2023-11-28,Silver,"33 Patrick Street, Cork",Cork
+niamh@example.com,Niamh Byrne,+353 83 210 9876,730,2024-05-14,Standard,"9 O'Connell Street, Limerick",Limerick
+sean@example.com,Seán McCarthy,+353 85 432 1098,2800,2023-01-20,Gold,"22 Main Street, Galway",Galway
+mairead@example.com,Máiréad Ní Raghallaigh,+353 89 876 5432,1950,2023-08-07,Silver,"5 The Crescent, Dundrum, Dublin 16",Dublin
+david@example.com,David O'Connor,+353 86 111 2222,980,2024-02-18,Standard,"14 Henry Street, Dublin 1",Dublin
+claire@example.com,Claire Cleary,+353 87 333 4444,2100,2023-05-30,Gold,"28 Oliver Plunkett Street, Cork",Cork
+fionn@example.com,Fionnuala Fitzgerald,+353 85 555 6666,670,2024-07-22,Standard,"3 The Mall, Waterford",Waterford
+patrick@example.com,Patrick Kavanagh,+353 83 777 8888,3400,2022-09-14,Gold,"19 O'Connell Avenue, Limerick",Limerick
+siobhan@example.com,Síobhán Ní Dhubhghaill,+353 89 999 0000,880,2024-04-05,Standard,"7 Rock Road, Blackrock, Dublin",Dublin
+eoin@example.com,Eoin Gallagher,+353 86 444 5555,1550,2023-10-11,Silver,"45 Shop Street, Galway",Galway
+grainne@example.com,Gráinne Ní Mhaoilíosa,+353 87 666 7777,420,2025-01-08,Standard,"12 Main Street, Dundalk",Louth
+tom@example.com,Tommy Carroll,+353 85 888 9999,1880,2023-07-19,Silver,"8 The Green, Stillorgan, Dublin",Dublin
+riona@example.com,Ríona Nic an Rí,+353 83 111 2222,2650,2023-02-25,Gold,"22 Patrick Hill, Kilkenny",Kilkenny
+declan@example.com,Declan Brennan,+353 89 333 4444,720,2024-06-14,Standard,"5 Summerhill Avenue, Sligo",Sligo
+aileen@example.com,Aileen O'Reilly,+353 86 555 6666,1900,2023-09-03,Silver,"16 The Folly, Drogheda",Louth
+brendan@example.com,Brendan Dunne,+353 87 777 8888,510,2024-12-01,Standard,"29 Castle Street, Ennis",Clare
+caitriona@example.com,Caitríona Ní Bhroin,+353 85 999 0000,3100,2022-08-12,Gold,"11 The Rise, Rathfarnham, Dublin",Dublin
+damien@example.com,Damien Ryan,+353 83 222 3333,1340,2023-12-20,Silver,"4 Cathedral Road, Letterkenny",Donegal
+elaine@example.com,Elaine Scully,+353 89 444 5555,680,2024-10-15,Standard,"20 Duke Street, Athlone",Westmeath
+fiachra@example.com,Fiachra Mac Mathúna,+353 86 666 7777,2400,2023-04-08,Gold,"9 College Road, Killarney",Kerry
+helen@example.com,Helen O'Doherty,+353 87 888 9999,1100,2024-03-27,Silver,"15 Abbey Street, Naas",Kildare
+ian@example.com,Ian Whelan,+353 85 111 2222,390,2025-02-19,Standard,"2 The Court, Bray",Wicklow
+julia@example.com,Julia McMahon,+353 83 333 4444,2750,2023-01-05,Gold,"18 Friar Street, Cashel",Tipperary
+kevin@example.com,Kevin Flynn,+353 89 555 6666,820,2024-08-30,Standard,"6 Riverside, Celbridge",Kildare
+lisa@example.com,Lisa Coughlan,+353 86 777 8888,2050,2023-06-01,Silver,"10 Market Square, Portlaoise",Laois
+michael@example.com,Michael Farrell,+353 87 999 0000,1500,2023-11-15,Silver,"25 Bridge Street, Ballina",Mayo
+noelle@example.com,Noelle O'Keeffe,+353 85 222 3333,630,2024-09-10,Standard,"13 Glen Road, Carlow",Carlow
+orla@example.com,Orla Ni Chonaill,+353 83 444 5555,3200,2022-07-04,Gold,"1 The Crescent, Monkstown, Dublin",Dublin
+peter@example.com,Peter Smyth,+353 89 666 7777,1050,2024-01-28,Silver,"24 Harbour View, Dunmore East",Waterford

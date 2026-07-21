@@ -1028,18 +1028,45 @@ const SHEET_CACHE = { products: null, customers: null, orders: null };
 async function fetchSheet(sheetId) {
   if (!sheetId || sheetId.startsWith('YOUR_')) return null;
   try {
-    const r = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq&tq=`, { cache:'no-store' });
+    // Try the gviz JSON API first (faster, structured)
+    const r = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq=`, { cache:'no-store' });
     const txt = await r.text();
-    const json = JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\)/)[1]);
-    if (!json.table) return null;
-    const cols = json.table.cols.filter(c => c.label).map(c => c.label);
-    return json.table.rows.filter(r => r.c).map(r => {
+    const m = txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\)/);
+    if (m) {
+      const json = JSON.parse(m[1]);
+      if (json.table && json.table.cols.length > 0) {
+        const cols = json.table.cols.filter(c => c.label).map(c => c.label);
+        return json.table.rows.filter(r => r.c && r.c.length).map(r => {
+          const obj = {};
+          r.c.forEach((cell, i) => {
+            if (cell && i < cols.length) {
+              let val = cell.v !== null && cell.v !== undefined ? cell.v : (cell.f || null);
+              if (typeof val === 'string') val = val.trim();
+              if (val === '' || val === null || val === undefined) val = null;
+              obj[cols[i]] = val;
+            }
+          });
+          return obj;
+        });
+      }
+    }
+    // Fallback: parse published CSV
+    const csv = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`, { cache:'no-store' });
+    const csvText = await csv.text();
+    const lines = csvText.split('\n').filter(l => l.trim());
+    if (lines.length < 2) return null;
+    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+    return lines.slice(1).map(line => {
+      const vals = [];
+      let inStr = false, cur = '';
+      for (const ch of line) {
+        if (ch === '"') { inStr = !inStr; continue; }
+        if (ch === ',' && !inStr) { vals.push(cur.replace(/""/g, '"').trim()); cur = ''; continue; }
+        cur += ch;
+      }
+      vals.push(cur.replace(/""/g, '"').trim());
       const obj = {};
-      r.c.forEach((cell, i) => {
-        let val = cell ? cell.v : null;
-        if (typeof val === 'string') val = val.trim();
-        obj[cols[i]] = val;
-      });
+      headers.forEach((h, i) => { const v = vals[i]; obj[h] = (v && v !== '' && v !== '""') ? v : null; });
       return obj;
     });
   } catch(e) {

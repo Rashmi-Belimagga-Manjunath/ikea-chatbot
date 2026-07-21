@@ -1,0 +1,31 @@
+id,name,cat,price,desc,tags
+MALM-001,MALM Bed frame with storage,Bedroom,395,High bed frame with 4 pull-out boxes. King size. Lots of storage underneath.,storage|bed|queen|drawers
+MALM-002,MALM Chest of 6 drawers,Bedroom,199,Chest of 6 drawers in white. Smooth-running with pull-out stop.,drawers|bedroom|storage
+MALM-003,MALM Dressing table,Bedroom,75,Dressing table with 2 drawers. Mirror and stool sold separately.,dressing table|mirror|bedroom
+MALM-004,MALM Desk,Office,59,Clean desk with 2 drawers in white. Simple and affordable.,desk|office|affordable
+BILLY-001,BILLY Bookcase,Storage,89,"Iconic bookcase with adjustable shelves. White, 80×28×202 cm.",bookshelf|iconic|adjustable|storage
+BILLY-002,BILLY Bookcase with glass doors,Storage,179,Bookcase with glass doors. Dust-free display. 80×42×202 cm.,bookshelf|glass|display|storage
+KALLAX-001,KALLAX Shelving unit,Storage,75,Versatile shelving unit. 77×147 cm. Works in any room.,shelf|versatile|modular|storage
+KALLAX-002,KALLAX Insert with box,Storage,15,Box insert for KALLAX units. 33×33 cm. White.,box|accessory|storage
+LACK-001,LACK Side table,Living Room,12,Lightweight side table. 55×55 cm. White. Incredible value.,table|affordable|lightweight|living room
+LACK-002,LACK Coffee table,Living Room,39,Coffee table in white. 90×55 cm. Easy to assemble.,coffee table|affordable|living room
+KIVIK-001,KIVIK 3-Seater Sofa with chaise,Living Room,695,Deep comfortable sofa with chaise. Lofallet beige. Removable covers.,sofa|chaise|comfortable|washable
+KIVIK-002,KIVIK Loveseat,Living Room,450,2-seater sofa. Deep comfort. Removable machine-washable covers.,sofa|loveseat|compact|washable
+POÄNG-001,POÄNG Armchair,Living Room,89,Classic birch veneer armchair. A design icon for over 50 years.,armchair|classic|iconic|birch
+POÄNG-002,POÄNG Footstool,Living Room,49,Matching footstool for POÄNG armchair. Birch veneer frame.,footstool|classic|matching
+HEMNES-001,HEMNES Chest of 8 drawers,Bedroom,249,Solid pine chest in brown-black stain. 147 cm tall. Traditional style.,drawers|solid wood|traditional|bedroom
+HEMNES-002,HEMNES Bed frame with 3 drawers,Bedroom,455,Solid pine bed frame with 3 drawers. Queen size. Traditional.,bed|drawers|solid wood|queen
+PAX-001,PAX Wardrobe frame 100 cm,Bedroom,255,Customise your own wardrobe. Frame 100×60×201 cm. White.,wardrobe|modular|custom|storage
+PAX-002,PAX Wardrobe frame 150 cm,Bedroom,325,Wider wardrobe frame 150×60×201 cm. Add your choice of doors.,wardrobe|modular|custom|storage
+BESTÅ-001,BESTÅ TV unit,Living Room,125,TV bench 180×40×38 cm. Cable management. Adjustable shelves.,tv unit|media|cable management|living room
+BESTÅ-002,BESTÅ Wall shelf,Living Room,30,Wall shelf for BESTÅ system. 60×40 cm. White.,shelf|modular|wall|living room
+KURA-001,KURA Reversible bed,Children,159,"Reversible bed: low for toddlers, high for play. White/pine.",bed|reversible|children|grows
+SMÅSTAD-001,SMÅSTAD Storage system,Children,299,Flexible children's storage with shelves and hanging rail.,storage|children|playroom|flexible
+FRAKTA-001,FRAKTA Shopping bag,Accessories,0.99,Iconic blue bag. 54×41×24 cm. Carries up to 25 kg.,bag|iconic|durable|accessory
+TROTTEN-001,TROTTEN Desk 120 cm,Office,169,Desk 120×70 cm. Sit/stand frame available separately.,desk|workspace|office|clean
+TROTTEN-002,TROTTEN Sit/stand desk,Office,399,Electric height-adjustable desk 120×70 cm. Switch sit/stand.,desk|sit-stand|ergonomic|adjustable
+ALEX-001,ALEX Drawer unit,Office,89,Drawer unit on casters. 36×58 cm. Perfect under a desk.,drawers|mobile|storage|office
+FJÄLLBO-001,FJÄLLBO Ladder shelf,Living Room,39,Industrial-style ladder shelf. Dark brown. 65×175 cm.,shelf|industrial|rustic|living room
+GERTON-001,GERTON Table,Living Room,55,Rustic birch table 155×75 cm. Perfect for dining or DIY.,table|diy|rustic|birch
+EKTÖP-001,EKTÖP 3-Seater Sofa,Living Room,849,Spacious 3-seater in Gunnared blue. Removable covers. Family-friendly.,sofa|family|washable|spacious
+MALM-005,MALM Bed frame high,Bedroom,295,Bed frame with 2 large drawers. Queen size. White stained oak.,bed|drawers|storage|queen
