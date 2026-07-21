@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IKEA Assistant — AI-Powered Shopping Companion</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230051ba'/><text x='16' y='22' text-anchor='middle' font-size='18' font-weight='bold' fill='%23ffcc00'>I</text></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --blue: #0051ba;
+    --blue-50: #eef4fb;
+    --blue-100: #d6e4f5;
+    --blue-200: #adc9eb;
+    --blue-300: #7aabdf;
+    --blue-400: #4089d1;
+    --blue-500: #0051ba;
+    --blue-600: #003d8c;
+    --blue-700: #002e6b;
+    --blue-800: #001f4a;
+    --blue-900: #001433;
+    --yellow: #ffcc00;
+    --yellow-50: #fff9e0;
+    --yellow-100: #fff2b5;
+    --yellow-200: #ffe885;
+    --yellow-300: #ffde55;
+    --yellow-400: #ffd626;
+    --yellow-500: #ffcc00;
+    --yellow-600: #e6b800;
+    --yellow-700: #cc9f00;
+    --green: #16a34a;
+    --green-50: #f0fdf4;
+    --red: #dc2626;
+    --red-50: #fef2f2;
+    --orange: #ea580c;
+    --orange-50: #fff7ed;
+    --gray-50: #f8f9fa;
+    --gray-100: #f0f1f3;
+    --gray-200: #e2e4e8;
+    --gray-300: #c4c7cd;
+    --gray-400: #9ca0a9;
+    --gray-500: #6b7080;
+    --gray-600: #4a4f5e;
+    --gray-700: #333845;
+    --gray-800: #1f232d;
+    --gray-900: #111318;
+    --bg: var(--gray-50);
+    --bg-surface: #ffffff;
+    --bg-warm: #f7f8fa;
+    --text: var(--gray-900);
+    --text-secondary: var(--gray-500);
+    --text-tertiary: var(--gray-400);
+    --border: var(--gray-200);
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-xl: 0 20px 60px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.04);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-display: 'Playfair Display', 'Georgia', serif;
+    --sidebar-w: 380px;
+    --header-h: 44px;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .dark {
+    --bg: var(--gray-900);
+    --bg-surface: var(--gray-800);
+    --bg-warm: #1a1d27;
+    --text: #eef0f2;
+    --text-secondary: var(--gray-400);
+    --text-tertiary: var(--gray-500);
+    --border: var(--gray-700);
+    --gray-50: #1f232d;
+    --gray-100: #2a2e3a;
+  }
+
+  html { scroll-behavior:smooth; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  body {
+    background:var(--bg); color:var(--text); font-family:var(--font);
+    height:100vh; overflow:hidden; font-size:14px; line-height:1.6;
+    transition:background .35s var(--ease), color .35s var(--ease);
+  }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--gray-300); border-radius:4px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--gray-400); }
+  .dark ::-webkit-scrollbar-thumb { background:var(--gray-600); }
+  .dark ::-webkit-scrollbar-thumb:hover { background:var(--gray-500); }
+  ::selection { background:var(--blue); color:#fff; }
+
+  /* ═══════════════════════════════════════════════════════════
+     TOP BAR
+     ═══════════════════════════════════════════════════════════ */
+  .topbar {
+    height:var(--header-h); background:var(--blue);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 20px; position:relative; z-index:50;
+    user-select:none; flex-shrink:0;
+  }
+  .topbar::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .topbar-logo {
+    display:flex; align-items:center; gap:8px;
+    font-weight:800; font-size:1.1rem; letter-spacing:-0.01em; color:#fff;
+  }
+  .topbar-logo svg { width:22px; height:22px; }
+  .topbar-logo .beta {
+    font-size:0.5rem; font-weight:600; letter-spacing:0.06em;
+    background:var(--yellow); color:var(--blue-800); padding:1px 5px;
+    border-radius:3px; text-transform:uppercase;
+  }
+  .topbar-tagline {
+    font-size:0.62rem; color:rgba(255,255,255,0.6); font-weight:400;
+    letter-spacing:0.01em; border-left:1px solid rgba(255,255,255,0.15); padding-left:12px;
+  }
+  .topbar-right { display:flex; align-items:center; gap:6px; }
+  .topbar-btn {
+    background:rgba(255,255,255,0.08); border:none; color:rgba(255,255,255,0.85);
+    font-family:var(--font); font-size:0.62rem; font-weight:500;
+    padding:5px 10px; border-radius:5px; cursor:pointer;
+    transition:all .2s var(--ease); display:flex; align-items:center; gap:5px;
+  }
+  .topbar-btn:hover { background:rgba(255,255,255,0.18); color:#fff; }
+  .topbar-btn:active { transform:scale(0.96); }
+  .topbar-demo {
+    font-size:0.55rem; font-weight:700; letter-spacing:0.03em;
+    background:var(--yellow); color:var(--blue-800); padding:2px 8px;
+    border-radius:3px; text-transform:uppercase; display:none;
+    animation:fadeIn .35s var(--ease);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════════════════════ */
+  #app { display:flex; height:calc(100vh - var(--header-h)); position:relative; }
+
+  /* ═══════════════════════════════════════════════════════════
+     SIDEBAR
+     ═══════════════════════════════════════════════════════════ */
+  .sidebar {
+    width:var(--sidebar-w); min-width:var(--sidebar-w);
+    background:var(--bg-surface); border-right:1px solid var(--border);
+    display:flex; flex-direction:column; overflow:hidden;
+    transition:background .35s var(--ease);
+  }
+  .sidebar-head {
+    padding:16px 16px 12px; border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .sidebar-head-row { display:flex; align-items:center; justify-content:space-between; }
+  .sidebar-head h2 {
+    font-size:0.68rem; font-weight:600; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--text-tertiary);
+  }
+  .sidebar-head h2 em { font-style:normal; color:var(--blue); font-weight:700; }
+  .sidebar-count {
+    font-size:0.58rem; color:var(--text-tertiary); font-weight:500;
+    background:var(--gray-50); padding:2px 8px; border-radius:10px;
+  }
+  .dark .sidebar-count { background:var(--gray-700); }
+  .sidebar-body { flex:1; overflow-y:auto; padding:8px; }
+
+  /* ── Empty State ── */
+  .empty-state {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    height:100%; text-align:center; padding:32px 24px; gap:8px;
+  }
+  .empty-state .es-icon {
+    width:88px; height:88px;
+    background:var(--blue-50); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.2rem; margin-bottom:4px;
+    transition:background .35s var(--ease);
+  }
+  .dark .empty-state .es-icon { background:var(--blue-900); }
+  .empty-state h3 {
+    font-family:var(--font-display); font-size:1.1rem;
+    font-weight:600; color:var(--text); letter-spacing:-0.01em;
+  }
+  .empty-state p {
+    font-size:0.72rem; color:var(--text-secondary); max-width:260px;
+    line-height:1.7; margin-bottom:2px;
+  }
+  .empty-state .es-grid {
+    display:flex; flex-wrap:wrap; gap:5px; justify-content:center; margin-top:8px;
+  }
+  .empty-state .es-grid button {
+    font-size:0.6rem; padding:6px 12px; border:1px solid var(--border);
+    border-radius:20px; background:var(--bg-surface); color:var(--text-secondary);
+    cursor:pointer; transition:all .2s var(--ease); font-family:var(--font);
+    box-shadow:var(--shadow-xs);
+  }
+  .empty-state .es-grid button:hover {
+    border-color:var(--blue); color:var(--blue);
+    background:var(--blue-50); transform:translateY(-1px);
+    box-shadow:0 2px 8px rgba(0,81,186,0.1);
+  }
+  .dark .empty-state .es-grid button:hover { background:var(--blue-900); }
+
+  /* ── Product Card ── */
+  .prod-card {
+    background:var(--bg-surface); border:1px solid var(--border);
+    border-radius:var(--radius-md); padding:12px; margin-bottom:6px;
+    transition:all .25s var(--ease);
+    animation:cardUp .4s var(--ease-spring) backwards;
+  }
+  .prod-card:nth-child(1) { animation-delay:0.02s; }
+  .prod-card:nth-child(2) { animation-delay:0.06s; }
+  .prod-card:nth-child(3) { animation-delay:0.10s; }
+  .prod-card:nth-child(4) { animation-delay:0.14s; }
+  .prod-card:nth-child(5) { animation-delay:0.18s; }
+  .prod-card:nth-child(n+6) { animation-delay:0.20s; }
+  @keyframes cardUp {
+    from { opacity:0; transform:translateY(10px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  .prod-card:hover { border-color:var(--blue-200); box-shadow:var(--shadow-md); }
+  .dark .prod-card:hover { border-color:var(--blue-600); }
+  .prod-card .pc-row { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .prod-card .pc-icon {
+    width:36px; height:36px; border-radius:var(--radius-sm);
+    background:var(--blue-50); display:flex; align-items:center; justify-content:center;
+    font-size:1rem; flex-shrink:0;
+    transition:background .35s var(--ease);
+  }
+  .dark .prod-card .pc-icon { background:var(--blue-900); }
+  .prod-card .pc-info { flex:1; min-width:0; }
+  .prod-card .pc-name {
+    font-size:0.78rem; font-weight:600; color:var(--text);
+    line-height:1.3; transition:color .2s;
+  }
+  .prod-card .pc-name:hover { color:var(--blue); }
+  .prod-card .pc-meta {
+    display:flex; align-items:center; gap:6px; margin-top:1px;
+    font-size:0.58rem; color:var(--text-tertiary);
+  }
+  .prod-card .pc-meta .cat { text-transform:uppercase; letter-spacing:0.04em; font-weight:500; }
+  .prod-card .pc-desc {
+    font-size:0.66rem; color:var(--text-secondary); margin-top:5px;
+    line-height:1.5; display:-webkit-box; -webkit-line-clamp:2;
+    -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .prod-card .pc-price {
+    font-size:0.85rem; font-weight:700; color:var(--blue);
+    white-space:nowrap; flex-shrink:0; margin-top:1px;
+  }
+  .prod-card .pc-tags {
+    display:flex; gap:3px; flex-wrap:wrap; margin-top:6px;
+  }
+  .prod-card .pc-tags span {
+    font-size:0.52rem; padding:1px 6px; border-radius:3px;
+    background:var(--gray-50); color:var(--text-tertiary);
+    border:1px solid var(--border); font-weight:500;
+  }
+  .dark .prod-card .pc-tags span { background:var(--gray-700); }
+
+  /* ── Order Card ── */
+  .ord-card {
+    background:var(--bg-surface); border:1px solid var(--border);
+    border-radius:var(--radius-md); padding:12px; margin-bottom:6px;
+    animation:cardUp .4s var(--ease-spring) backwards;
+  }
+  .ord-card .oc-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+  .ord-card .oc-id { font-size:0.7rem; font-weight:600; color:var(--text); letter-spacing:0.01em; }
+  .ord-card .oc-badge {
+    font-size:0.52rem; font-weight:600; padding:2px 9px; border-radius:10px;
+    text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .ord-card .oc-badge.s-delivered { background:var(--green-50); color:var(--green); }
+  .ord-card .oc-badge.s-shipped { background:var(--blue-50); color:var(--blue); }
+  .ord-card .oc-badge.s-processing { background:var(--orange-50); color:var(--orange); }
+  .ord-card .oc-badge.s-cancelled { background:var(--red-50); color:var(--red); }
+  .dark .ord-card .oc-badge.s-delivered { background:#14532d; color:#4ade80; }
+  .dark .ord-card .oc-badge.s-shipped { background:#1e3a5f; color:#60a5fa; }
+  .dark .ord-card .oc-badge.s-processing { background:#431407; color:#fb923c; }
+  .dark .ord-card .oc-badge.s-cancelled { background:#450a0a; color:#f87171; }
+  .ord-card .oc-date { font-size:0.56rem; color:var(--text-tertiary); }
+  .ord-card .oc-items {
+    font-size:0.64rem; color:var(--text-secondary); margin-top:3px;
+    line-height:1.5;
+  }
+  .ord-card .oc-total {
+    font-size:0.72rem; font-weight:700; color:var(--blue); margin-top:4px;
+  }
+  .ord-card .oc-track { font-size:0.56rem; color:var(--text-tertiary); margin-top:3px; display:flex; align-items:center; gap:4px; }
+  .ord-card .oc-reason { font-size:0.6rem; color:var(--red); margin-top:3px; font-style:italic; }
+
+  /* ── Timeline ── */
+  .timeline { display:flex; align-items:center; margin:8px 0 2px; }
+  .timeline .tl-step {
+    display:flex; flex-direction:column; align-items:center; flex:1; position:relative;
+  }
+  .timeline .tl-dot {
+    width:20px; height:20px; border-radius:50%;
+    border:2px solid var(--gray-200); background:var(--bg-surface);
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.45rem; font-weight:700; position:relative; z-index:1;
+    transition:all .4s var(--ease); color:transparent;
+  }
+  .timeline .tl-step.done .tl-dot {
+    background:var(--green); border-color:var(--green); color:#fff;
+  }
+  .timeline .tl-step.active .tl-dot {
+    background:var(--blue); border-color:var(--blue); color:#fff;
+    box-shadow:0 0 0 4px var(--blue-100);
+  }
+  .dark .timeline .tl-step.active .tl-dot { box-shadow:0 0 0 4px rgba(0,81,186,0.3); }
+  .timeline .tl-label { font-size:0.45rem; color:var(--text-tertiary); margin-top:3px; white-space:nowrap; font-weight:500; }
+  .timeline .tl-step.active .tl-label { color:var(--blue); font-weight:600; }
+  .timeline .tl-step.done .tl-label { color:var(--green); }
+  .timeline .tl-line {
+    flex:1; height:2px; background:var(--gray-200);
+    margin:0 -1px; margin-bottom:20px; transition:background .4s var(--ease);
+  }
+  .timeline .tl-line.fill { background:var(--green); }
+  .dark .timeline .tl-line { background:var(--gray-700); }
+
+  /* ═══════════════════════════════════════════════════════════
+     CHAT AREA
+     ═══════════════════════════════════════════════════════════ */
+  .chat-area {
+    flex:1; display:flex; flex-direction:column; min-width:0;
+    background:var(--bg-warm); position:relative;
+    transition:background .35s var(--ease);
+  }
+  .chat-area::before {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(135deg, rgba(0,81,186,0.02) 0%, transparent 35%, rgba(255,204,0,0.015) 100%);
+  }
+
+  /* ── Chat Header ── */
+  .chat-head {
+    padding:10px 20px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    flex-shrink:0; background:var(--bg-surface); position:relative; z-index:2;
+    transition:background .35s var(--ease);
+  }
+  .chat-head-left { display:flex; align-items:center; gap:10px; }
+  .chat-head-avatar {
+    width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(135deg, var(--blue), var(--blue-600));
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:0.85rem;
+    box-shadow:0 2px 8px rgba(0,81,186,0.2);
+    transition:transform .2s var(--ease-spring);
+  }
+  .chat-head-avatar:hover { transform:scale(1.05); }
+  .chat-head-info { line-height:1.3; }
+  .chat-head-name { font-size:0.82rem; font-weight:600; color:var(--text); }
+  .chat-head-status { font-size:0.6rem; color:var(--text-tertiary); display:flex; align-items:center; gap:5px; }
+  .chat-head-status .dot {
+    width:6px; height:6px; border-radius:50%; display:inline-block;
+    transition:all .3s var(--ease);
+  }
+  .chat-head-status .dot.on { background:var(--green); box-shadow:0 0 6px rgba(22,163,74,0.4); }
+  .chat-head-status .dot.off { background:var(--gray-400); }
+  .chat-head-right { display:flex; align-items:center; gap:5px; }
+  .ch-btn {
+    background:none; border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:5px 10px; font-size:0.6rem; font-family:var(--font);
+    cursor:pointer; color:var(--text-secondary); transition:all .2s var(--ease);
+    display:flex; align-items:center; gap:4px; font-weight:500;
+  }
+  .ch-btn:hover { background:var(--gray-50); color:var(--text); border-color:var(--gray-300); }
+  .dark .ch-btn:hover { background:var(--gray-700); border-color:var(--gray-600); }
+  .ch-btn:active { transform:scale(0.97); }
+
+  /* ── Messages ── */
+  .chat-msgs {
+    flex:1; overflow-y:auto; padding:12px 20px;
+    display:flex; flex-direction:column; gap:6px;
+    position:relative; z-index:1;
+  }
+
+  .msg {
+    display:flex; gap:8px; max-width:88%;
+    animation:msgUp .35s var(--ease-spring);
+  }
+  @keyframes msgUp {
+    from { opacity:0; transform:translateY(12px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  .msg.user { align-self:flex-end; flex-direction:row-reverse; }
+  .msg.bot { align-self:flex-start; }
+
+  .msg .avatar {
+    width:30px; height:30px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.65rem; font-weight:700;
+    transition:transform .2s var(--ease-spring);
+  }
+  .msg.user .avatar { background:var(--blue); color:#fff; }
+  .msg.bot .avatar { background:var(--yellow); color:var(--blue-800); }
+  .msg.user:hover .avatar { transform:scale(1.08); }
+
+  .msg .bubble {
+    padding:8px 14px; border-radius:var(--radius-md); font-size:0.8rem;
+    line-height:1.7; max-width:100%; word-wrap:break-word; position:relative;
+  }
+  .msg.user .bubble {
+    background:var(--blue); color:#fff;
+    border-bottom-right-radius:3px;
+  }
+  .msg.bot .bubble {
+    background:var(--bg-surface); color:var(--text);
+    border-bottom-left-radius:3px;
+    box-shadow:var(--shadow-sm); border:1px solid var(--border);
+    transition:background .35s var(--ease);
+  }
+
+  .msg .bubble ul { margin:4px 0 4px 18px; }
+  .msg .bubble li { margin-bottom:2px; }
+  .msg .bubble a { color:var(--blue); text-decoration:underline; text-underline-offset:2px; font-weight:500; }
+  .msg .bubble strong { font-weight:600; }
+  .msg .bubble code {
+    font-family:'SF Mono','Fira Code',monospace; font-size:0.7em;
+    background:rgba(0,0,0,0.04); padding:1px 5px; border-radius:3px;
+  }
+  .dark .msg.bot .bubble code { background:rgba(255,255,255,0.06); }
+
+  /* ── Tool Calls in Bubble ── */
+  .msg .bubble .tc-wrap {
+    margin-top:6px; padding:6px 8px; background:var(--gray-50);
+    border-radius:var(--radius-sm); font-size:0.62rem;
+    border:1px solid var(--border);
+  }
+  .dark .msg .bubble .tc-wrap { background:var(--gray-700); }
+  .msg .bubble .tc-wrap .tc-h {
+    font-weight:600; color:var(--text-secondary); display:flex; align-items:center; gap:5px; font-size:0.6rem;
+  }
+  .msg .bubble .tc-wrap .tc-h .spinner {
+    display:inline-block; width:7px; height:7px;
+    border:2px solid var(--gray-300); border-top-color:var(--blue);
+    border-radius:50%; animation:spin .6s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .msg .bubble .tc-wrap .tc-body { color:var(--text-tertiary); margin-top:1px; font-family:monospace; font-size:0.56rem; }
+  .msg .bubble .tc-wrap .tc-res { color:var(--green); margin-top:1px; font-weight:600; font-size:0.56rem; }
+  .msg .bubble .tc-wrap .tc-res.err { color:var(--red); }
+
+  /* ── Inline Product/Order Cards ── */
+  .p-inline, .o-inline {
+    margin-top:6px; padding:8px 10px; background:var(--bg-surface);
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    font-size:0.7rem; box-shadow:var(--shadow-xs);
+  }
+  .p-inline .pi-name { font-weight:600; color:var(--text); }
+  .p-inline .pi-price { color:var(--blue); font-weight:700; font-size:0.78rem; }
+  .o-inline .oi-head { display:flex; justify-content:space-between; align-items:center; }
+  .o-inline .oi-id { font-weight:600; font-size:0.7rem; }
+  .o-inline .oi-total { font-size:0.7rem; font-weight:600; color:var(--blue); }
+
+  /* ── Thinking ── */
+  .msg.thinking .bubble {
+    background:transparent; border:none; box-shadow:none;
+    color:var(--text-tertiary); font-size:0.72rem;
+    display:flex; align-items:center; gap:8px;
+  }
+  .typing {
+    display:flex; gap:3px; align-items:center;
+  }
+  .typing span {
+    width:6px; height:6px; background:var(--gray-400);
+    border-radius:50%; animation:typing 1.2s ease-in-out infinite;
+  }
+  .typing span:nth-child(2) { animation-delay:0.2s; }
+  .typing span:nth-child(3) { animation-delay:0.4s; }
+  @keyframes typing {
+    0%,80%,100% { transform:scale(0.5); opacity:0.3; }
+    40% { transform:scale(1); opacity:1; }
+  }
+
+  /* ── Suggestions ── */
+  .suggestions {
+    display:flex; flex-wrap:wrap; gap:5px;
+    padding:6px 20px; flex-shrink:0; position:relative; z-index:1;
+  }
+  .suggestions button {
+    font-size:0.62rem; padding:5px 12px; border:1px solid var(--border);
+    border-radius:16px; background:var(--bg-surface); color:var(--text-secondary);
+    cursor:pointer; transition:all .2s var(--ease);
+    font-family:var(--font); white-space:nowrap;
+    box-shadow:var(--shadow-xs);
+  }
+  .suggestions button:hover {
+    border-color:var(--blue); color:var(--blue);
+    background:var(--blue-50); transform:translateY(-1px);
+  }
+  .dark .suggestions button:hover { background:var(--blue-900); }
+  .suggestions button:active { transform:translateY(0); }
+
+  /* ── Input ── */
+  .chat-input {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 20px 10px; border-top:1px solid var(--border);
+    flex-shrink:0; background:var(--bg-surface); position:relative; z-index:2;
+    transition:background .35s var(--ease);
+  }
+  .chat-input input {
+    flex:1; border:1px solid var(--border); border-radius:22px;
+    padding:9px 16px; font-size:0.8rem; font-family:var(--font);
+    outline:none; transition:all .25s var(--ease);
+    background:var(--bg-warm); color:var(--text);
+  }
+  .chat-input input:focus {
+    border-color:var(--blue); background:var(--bg-surface);
+    box-shadow:0 0 0 3px rgba(0,81,186,0.08);
+  }
+  .chat-input input::placeholder { color:var(--text-tertiary); }
+  .chat-input .send {
+    width:38px; height:38px; border-radius:50%; border:none;
+    background:var(--blue); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all .2s var(--ease-spring);
+    flex-shrink:0; box-shadow:0 2px 8px rgba(0,81,186,0.25);
+  }
+  .chat-input .send:hover { background:var(--blue-600); transform:scale(1.06); box-shadow:0 4px 14px rgba(0,81,186,0.35); }
+  .chat-input .send:active { transform:scale(0.94); }
+  .chat-input .send:disabled { opacity:0.35; cursor:not-allowed; transform:none; box-shadow:none; }
+  .chat-input .send svg { width:15px; height:15px; }
+
+  /* ── Tool Log ── */
+  .tool-log {
+    border-top:1px solid var(--border); max-height:64px; overflow-y:auto;
+    padding:4px 16px; background:var(--bg-surface);
+    flex-shrink:0; font-size:0.55rem; position:relative; z-index:1;
+    transition:background .35s var(--ease);
+  }
+  .tool-log .tl-item {
+    display:flex; align-items:flex-start; gap:5px;
+    padding:2px 0; color:var(--text-tertiary);
+    font-family:'SF Mono','Fira Code',monospace; font-size:0.53rem;
+  }
+  .tool-log .tl-name { font-weight:600; color:var(--text-secondary); }
+  .tool-log .tl-res { color:var(--green); }
+  .tool-log .tl-res.err { color:var(--red); }
+
+  /* ═══════════════════════════════════════════════════════════
+     MODAL
+     ═══════════════════════════════════════════════════════════ */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.45);
+    z-index:300; display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(6px); animation:overlayIn .25s var(--ease);
+  }
+  @keyframes overlayIn { from { opacity:0; } to { opacity:1; } }
+  .modal-overlay.hidden { display:none; }
+  .modal {
+    background:var(--bg-surface); border-radius:var(--radius-lg);
+    padding:28px 28px 24px; max-width:420px; width:90%;
+    box-shadow:var(--shadow-xl);
+    animation:modalIn .35s var(--ease-spring);
+  }
+  @keyframes modalIn {
+    from { opacity:0; transform:scale(0.93) translateY(12px); }
+    to { opacity:1; transform:scale(1) translateY(0); }
+  }
+  .modal .m-icon {
+    width:52px; height:52px; background:var(--blue-50);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; margin-bottom:12px;
+  }
+  .dark .modal .m-icon { background:var(--blue-900); }
+  .modal h2 { font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .modal p {
+    font-size:0.76rem; color:var(--text-secondary); margin-bottom:18px;
+    line-height:1.7;
+  }
+  .modal label {
+    font-size:0.68rem; font-weight:600; color:var(--text);
+    display:block; margin-bottom:4px;
+  }
+  .modal input, .modal select {
+    width:100%; padding:9px 12px; border:1px solid var(--border);
+    border-radius:var(--radius-sm); font-size:0.8rem;
+    font-family:var(--font); margin-bottom:8px; outline:none;
+    background:var(--bg-surface); color:var(--text);
+    transition:border-color .2s var(--ease);
+  }
+  .modal input:focus, .modal select:focus {
+    border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,81,186,0.1);
+  }
+  .modal .hint {
+    font-size:0.6rem; color:var(--text-tertiary); margin-top:-4px; margin-bottom:6px; line-height:1.5;
+  }
+  .modal .hint a { color:var(--blue); font-weight:500; }
+  .modal .actions { display:flex; gap:6px; margin-top:14px; }
+  .modal .actions button {
+    flex:1; padding:10px 8px; border:none; border-radius:var(--radius-sm);
+    font-size:0.76rem; font-weight:600; font-family:var(--font);
+    cursor:pointer; transition:all .2s var(--ease);
+  }
+  .modal .actions button:active { transform:scale(0.97); }
+  .modal .actions .primary { background:var(--blue); color:#fff; }
+  .modal .actions .primary:hover { background:var(--blue-600); }
+  .modal .actions .secondary {
+    background:var(--yellow); color:var(--blue-800);
+  }
+  .modal .actions .secondary:hover { filter:brightness(0.92); }
+  .modal .actions .ghost {
+    background:var(--gray-50); color:var(--text-secondary); border:1px solid var(--border);
+  }
+  .modal .actions .ghost:hover { background:var(--gray-100); }
+  .dark .modal .actions .ghost { background:var(--gray-700); border-color:var(--gray-600); color:var(--text-secondary); }
+  .dark .modal .actions .ghost:hover { background:var(--gray-600); }
+
+  /* ═══════════════════════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════════════════════ */
+  @media (max-width:860px) {
+    .sidebar { display:none; }
+    .topbar-tagline { display:none; }
+    .topbar { padding:0 12px; }
+    .chat-msgs { padding:10px 14px; }
+    .msg { max-width:95%; }
+    .chat-input { padding:6px 14px 8px; }
+    .suggestions { padding:5px 14px; }
+    .suggestions button { font-size:0.58rem; padding:4px 10px; }
+    .chat-head { padding:8px 14px; }
+    .tool-log { max-height:48px; padding:3px 12px; }
+    .modal { padding:20px; }
+  }
+  @media (max-width:480px) {
+    .topbar-btn.hide-xs { display:none; }
+    .chat-head-avatar { width:30px; height:30px; font-size:0.75rem; }
+    .chat-head-name { font-size:0.75rem; }
+    .msg .bubble { font-size:0.76rem; padding:7px 11px; }
+    .empty-state .es-icon { width:64px; height:64px; font-size:1.6rem; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     UTILITY
+     ═══════════════════════════════════════════════════════════ */
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+</style>
+</head>
+<body>
+
+<!-- ═══════ TOP BAR ═══════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#fff"/><text x="12" y="17" text-anchor="middle" font-size="14" font-weight="800" fill="#0051ba">I</text></svg>
+      IKEA <span class="beta">AI</span>
+    </div>
+    <span class="topbar-tagline">Shopping Companion · Ireland</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-demo" id="demoTag">🎯 DEMO</span>
+    <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+    <button class="topbar-btn hide-xs" onclick="showSetup()">🔑 Setup</button>
+    <button class="topbar-btn" onclick="if(confirm('Reset everything?'))resetApp()" title="Reset">🔄</button>
+  </div>
+</header>
+
+<!-- ═══════ APP ═══════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-head-row">
+        <h2><em>Results</em></h2>
+        <div style="display:flex;align-items:center;gap:4px">
+          <button class="ch-btn" onclick="showSpreadsheet()" title="View order spreadsheet" style="font-size:0.55rem;padding:3px 7px">📊 Sheet</button>
+          <span class="sidebar-count" id="resultCount"></span>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-body" id="sidebarBody">
+      <div class="empty-state" id="sidebarEmpty">
+        <div class="es-icon">🇸🇪</div>
+        <h3>Hej! Welcome</h3>
+        <p>Ask me about IKEA products, track an order, or get store info. I'm here to help!</p>
+        <div class="es-grid">
+          <button onclick="quickSearch('Show me MALM beds')">🛏️ MALM</button>
+          <button onclick="quickSearch('Show me BILLY bookcases')">📚 BILLY</button>
+          <button onclick="quickSearch('Track order rashmi@example.com')">📦 My Orders</button>
+          <button onclick="quickSearch('Tell me about IKEA Family offers')">💛 Offers</button>
+          <button onclick="quickSearch('What are the store hours for IKEA Ballymun?')">🏪 Store</button>
+        </div>
+      </div>
+      <div id="sidebarResults" style="display:none"></div>
+    </div>
+  </aside>
+
+  <!-- CHAT -->
+  <main class="chat-area">
+    <!-- Header -->
+    <div class="chat-head">
+      <div class="chat-head-left">
+        <div class="chat-head-avatar">I</div>
+        <div class="chat-head-info">
+          <div class="chat-head-name">IKEA Assistant</div>
+          <div class="chat-head-status">
+            <span class="dot off" id="statusDot"></span>
+            <span id="statusText">Not connected</span>
+          </div>
+        </div>
+      </div>
+      <div class="chat-head-right">
+        <button class="ch-btn" id="demoBtn" onclick="toggleDemo()">🎯 Demo</button>
+        <button class="ch-btn hide-xs" onclick="showSetup()">🔑 Key</button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg bot">
+        <div class="avatar">I</div>
+        <div class="bubble">
+          👋 Hej! Welcome to <strong>IKEA Ireland</strong> — I'm your AI-powered shopping companion.<br><br>
+          Here's what I can help you with:
+          <ul>
+            <li>🔍 <strong>Search products</strong> — "Show me MALM beds" or "Find sofas under €500"</li>
+            <li>📦 <strong>Track orders</strong> — "Where's my order?" or "Track IE-2025-002"</li>
+            <li>📋 <strong>Purchase history</strong> — "What did I buy? rashmi@example.com"</li>
+            <li>🏪 <strong>Store info</strong> — "When does Ballymun open?" or "Store services"</li>
+            <li>💛 <strong>IKEA Family</strong> — "Tell me about IKEA Family offers"</li>
+          </ul>
+          Enter your API key or start <strong>Demo mode</strong> to begin!
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="suggestions" id="suggestions">
+      <button onclick="quickSearch('Show me MALM beds')">🛏️ MALM</button>
+      <button onclick="quickSearch('Show me BILLY bookcases')">📚 BILLY</button>
+      <button onclick="quickSearch('Show me POÄNG chairs')">🪑 POÄNG</button>
+      <button onclick="quickSearch('Track order rashmi@example.com')">📦 Track</button>
+      <button onclick="quickSearch('Tell me about IKEA Family offers')">💛 Offers</button>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Ask about products, track orders, store info..." autofocus>
+      <button class="send" id="sendBtn" onclick="send()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+
+    <!-- Tool Log -->
+    <div class="tool-log" id="toolLog">
+      <div class="tl-item" style="color:var(--text-tertiary)">⚡ MCP tools ready · 7 tools loaded</div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════ MODAL ═══════ -->
+<div class="modal-overlay hidden" id="setupModal">
+  <div class="modal">
+    <div class="m-icon">🤖</div>
+    <h2>Connect your AI</h2>
+    <p>Link your own API key for live AI responses, or try <strong>Demo mode</strong> with our built-in product catalogue.</p>
+
+    <label for="apiType">Provider</label>
+    <select id="apiType">
+      <option value="openai">OpenAI — GPT-4o-mini</option>
+      <option value="gemini">Google — Gemini 2.0 Flash</option>
+    </select>
+
+    <label for="apiKeyInput">API Key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-... or AIza...">
+    <div class="hint" id="providerHint">
+      Get your key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="saveSetup(true)">Connect</button>
+      <button class="secondary" onclick="saveSetup(false)">🎯 Demo Mode</button>
+      <button class="ghost" onclick="closeSetup()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// IKEA DATASET
+// ════════════════════════════════════════════════════════════════
+
+const CAT_ICONS = { Bedroom:'🛏️', 'Living Room':'🛋️', Storage:'📦', Office:'💼', Children:'🧸', Accessories:'🛍️', Kitchen:'🍳', Lighting:'💡', Textiles:'🧵', Decor:'🎨', Bathroom:'🚿', Outdoor:'🌿' };
+
+const PRODUCTS = [
+  { id:"MALM-001", name:"MALM Bed frame with storage", cat:"Bedroom", price:395, desc:"High bed frame with 4 pull-out boxes. King size. Lots of storage underneath.", tags:["storage","bed","queen","drawers"] },
+  { id:"MALM-002", name:"MALM Chest of 6 drawers", cat:"Bedroom", price:199, desc:"Chest of 6 drawers in white. Smooth-running with pull-out stop.", tags:["drawers","bedroom","storage"] },
+  { id:"MALM-003", name:"MALM Dressing table", cat:"Bedroom", price:75, desc:"Dressing table with 2 drawers. Mirror and stool sold separately.", tags:["dressing table","mirror","bedroom"] },
+  { id:"MALM-004", name:"MALM Desk", cat:"Office", price:59, desc:"Clean desk with 2 drawers in white. Simple and affordable.", tags:["desk","office","affordable"] },
+  { id:"BILLY-001", name:"BILLY Bookcase", cat:"Storage", price:89, desc:"Iconic bookcase with adjustable shelves. White, 80×28×202 cm.", tags:["bookshelf","iconic","adjustable","storage"] },
+  { id:"BILLY-002", name:"BILLY Bookcase with glass doors", cat:"Storage", price:179, desc:"Bookcase with glass doors. Dust-free display. 80×42×202 cm.", tags:["bookshelf","glass","display","storage"] },
+  { id:"KALLAX-001", name:"KALLAX Shelving unit", cat:"Storage", price:75, desc:"Versatile shelving unit. 77×147 cm. Works in any room.", tags:["shelf","versatile","modular","storage"] },
+  { id:"KALLAX-002", name:"KALLAX Insert with box", cat:"Storage", price:15, desc:"Box insert for KALLAX units. 33×33 cm. White.", tags:["box","accessory","storage"] },
+  { id:"LACK-001", name:"LACK Side table", cat:"Living Room", price:12, desc:"Lightweight side table. 55×55 cm. White. Incredible value.", tags:["table","affordable","lightweight","living room"] },
+  { id:"LACK-002", name:"LACK Coffee table", cat:"Living Room", price:39, desc:"Coffee table in white. 90×55 cm. Easy to assemble.", tags:["coffee table","affordable","living room"] },
+  { id:"KIVIK-001", name:"KIVIK 3-Seater Sofa with chaise", cat:"Living Room", price:695, desc:"Deep comfortable sofa with chaise. Lofallet beige. Removable covers.", tags:["sofa","chaise","comfortable","washable"] },
+  { id:"KIVIK-002", name:"KIVIK Loveseat", cat:"Living Room", price:450, desc:"2-seater sofa. Deep comfort. Removable machine-washable covers.", tags:["sofa","loveseat","compact","washable"] },
+  { id:"POÄNG-001", name:"POÄNG Armchair", cat:"Living Room", price:89, desc:"Classic birch veneer armchair. A design icon for over 50 years.", tags:["armchair","classic","iconic","birch"] },
+  { id:"POÄNG-002", name:"POÄNG Footstool", cat:"Living Room", price:49, desc:"Matching footstool for POÄNG armchair. Birch veneer frame.", tags:["footstool","classic","matching"] },
+  { id:"HEMNES-001", name:"HEMNES Chest of 8 drawers", cat:"Bedroom", price:249, desc:"Solid pine chest in brown-black stain. 147 cm tall. Traditional style.", tags:["drawers","solid wood","traditional","bedroom"] },
+  { id:"HEMNES-002", name:"HEMNES Bed frame with 3 drawers", cat:"Bedroom", price:455, desc:"Solid pine bed frame with 3 drawers. Queen size. Traditional.", tags:["bed","drawers","solid wood","queen"] },
+  { id:"PAX-001", name:"PAX Wardrobe frame 100 cm", cat:"Bedroom", price:255, desc:"Customise your own wardrobe. Frame 100×60×201 cm. White.", tags:["wardrobe","modular","custom","storage"] },
+  { id:"PAX-002", name:"PAX Wardrobe frame 150 cm", cat:"Bedroom", price:325, desc:"Wider wardrobe frame 150×60×201 cm. Add your choice of doors.", tags:["wardrobe","modular","custom","storage"] },
+  { id:"BESTÅ-001", name:"BESTÅ TV unit", cat:"Living Room", price:125, desc:"TV bench 180×40×38 cm. Cable management. Adjustable shelves.", tags:["tv unit","media","cable management","living room"] },
+  { id:"BESTÅ-002", name:"BESTÅ Wall shelf", cat:"Living Room", price:30, desc:"Wall shelf for BESTÅ system. 60×40 cm. White.", tags:["shelf","modular","wall","living room"] },
+  { id:"KURA-001", name:"KURA Reversible bed", cat:"Children", price:159, desc:"Reversible bed: low for toddlers, high for play. White/pine.", tags:["bed","reversible","children","grows"] },
+  { id:"SMÅSTAD-001", name:"SMÅSTAD Storage system", cat:"Children", price:299, desc:"Flexible children's storage with shelves and hanging rail.", tags:["storage","children","playroom","flexible"] },
+  { id:"FRAKTA-001", name:"FRAKTA Shopping bag", cat:"Accessories", price:0.99, desc:"Iconic blue bag. 54×41×24 cm. Carries up to 25 kg.", tags:["bag","iconic","durable","accessory"] },
+  { id:"TROTTEN-001", name:"TROTTEN Desk 120 cm", cat:"Office", price:169, desc:"Desk 120×70 cm. Sit/stand frame available separately.", tags:["desk","workspace","office","clean"] },
+  { id:"TROTTEN-002", name:"TROTTEN Sit/stand desk", cat:"Office", price:399, desc:"Electric height-adjustable desk 120×70 cm. Switch sit/stand.", tags:["desk","sit-stand","ergonomic","adjustable"] },
+  { id:"ALEX-001", name:"ALEX Drawer unit", cat:"Office", price:89, desc:"Drawer unit on casters. 36×58 cm. Perfect under a desk.", tags:["drawers","mobile","storage","office"] },
+  { id:"FJÄLLBO-001", name:"FJÄLLBO Ladder shelf", cat:"Living Room", price:39, desc:"Industrial-style ladder shelf. Dark brown. 65×175 cm.", tags:["shelf","industrial","rustic","living room"] },
+  { id:"GERTON-001", name:"GERTON Table", cat:"Living Room", price:55, desc:"Rustic birch table 155×75 cm. Perfect for dining or DIY.", tags:["table","diy","rustic","birch"] },
+  { id:"EKTÖP-001", name:"EKTÖP 3-Seater Sofa", cat:"Living Room", price:849, desc:"Spacious 3-seater in Gunnared blue. Removable covers. Family-friendly.", tags:["sofa","family","washable","spacious"] },
+  { id:"MALM-005", name:"MALM Bed frame high", cat:"Bedroom", price:295, desc:"Bed frame with 2 large drawers. Queen size. White stained oak.", tags:["bed","drawers","storage","queen"] },
+];
+
+const ICONS = { 'MALM':'🛏️','BILLY':'📚','KALLAX':'📦','LACK':'🪑','KIVIK':'🛋️','POÄNG':'🪑','HEMNES':'🗄️','PAX':'🚪','BESTÅ':'📺','KURA':'🛌','TROTTEN':'💻','ALEX':'🗄️','FJÄLLBO':'🪜','GERTON':'🪵','EKTÖP':'🛋️','FRAKTA':'🛍️','SMÅSTAD':'🧸' };
+
+const CUSTOMERS = [
+  { email:"rashmi@example.com", name:"Rashmi Manjunath", phone:"+353 85 123 4567", points:2450, since:"2023-03-15", tier:"Gold", addr:"12 Ailesbury Road, Dublin 4", county:"Dublin" },
+  { email:"sarah@example.com", name:"Sarah Connor", phone:"+353 87 234 5678", points:1820, since:"2023-06-22", tier:"Silver", addr:"45 Merrion Square, Dublin 2", county:"Dublin" },
+  { email:"john@example.com", name:"John Murphy", phone:"+353 86 345 6789", points:890, since:"2024-01-10", tier:"Standard", addr:"8 Temple Road, Dublin 6", county:"Dublin" },
+  { email:"emma@example.com", name:"Emma Walsh", phone:"+353 83 456 7890", points:3100, since:"2022-11-05", tier:"Gold", addr:"23 Howth Road, Dublin 5", county:"Dublin" },
+  { email:"ciaran@example.com", name:"Ciarán O'Brien", phone:"+353 89 567 8901", points:560, since:"2024-08-19", tier:"Standard", addr:"56 Capel Street, Dublin 1", county:"Dublin" },
+  { email:"aoife@example.com", name:"Aoife O'Sullivan", phone:"+353 87 654 3210", points:4100, since:"2022-04-10", tier:"Gold", addr:"17 Dun Laoghaire Road, Dublin 6", county:"Dublin" },
+  { email:"liam@example.com", name:"Liam Kelly", phone:"+353 86 789 0123", points:1250, since:"2023-11-28", tier:"Silver", addr:"33 Patrick Street, Cork", county:"Cork" },
+  { email:"niamh@example.com", name:"Niamh Byrne", phone:"+353 83 210 9876", points:730, since:"2024-05-14", tier:"Standard", addr:"9 O'Connell Street, Limerick", county:"Limerick" },
+  { email:"sean@example.com", name:"Seán McCarthy", phone:"+353 85 432 1098", points:2800, since:"2023-01-20", tier:"Gold", addr:"22 Main Street, Galway", county:"Galway" },
+  { email:"mairead@example.com", name:"Máiréad Ní Raghallaigh", phone:"+353 89 876 5432", points:1950, since:"2023-08-07", tier:"Silver", addr:"5 The Crescent, Dundrum, Dublin 16", county:"Dublin" },
+];
+
+const ORDERS = [
+  // ── Rashmi Manjunath (4 orders) ──
+  { id:"IE-2024-001", email:"rashmi@example.com", date:"2024-11-20", status:"delivered", items:[{ id:"MALM-001", name:"MALM Bed frame with storage", qty:1, price:395 },{ id:"MALM-002", name:"MALM Chest of 6 drawers", qty:1, price:199 }], total:594, addr:"12 Ailesbury Road, Dublin 4", courier:"DHL Express", tracking:"DHL-EI-82930123", payment:"Visa ···· 4321", delivered:"2024-11-27", method:"Home Delivery", points:59 },
+  { id:"IE-2024-010", email:"rashmi@example.com", date:"2024-08-03", status:"delivered", items:[{ id:"KIVIK-001", name:"KIVIK 3-Seater Sofa with chaise", qty:1, price:695 },{ id:"LACK-001", name:"LACK Side table", qty:2, price:12 }], total:719, addr:"12 Ailesbury Road, Dublin 4", courier:"DHL Express", tracking:"DHL-EI-76543219", payment:"Mastercard ···· 8765", delivered:"2024-08-10", method:"Home Delivery", points:72 },
+  { id:"IE-2025-002", email:"rashmi@example.com", date:"2025-06-15", status:"shipped", items:[{ id:"BILLY-001", name:"BILLY Bookcase", qty:2, price:89 },{ id:"LACK-001", name:"LACK Side table", qty:2, price:12 }], total:202, addr:"12 Ailesbury Road, Dublin 4", courier:"DPD Ireland", tracking:"DPD-EI-45217890", payment:"Visa ···· 4321", eta:"2025-06-22", method:"Home Delivery", points:20 },
+  { id:"IE-2025-014", email:"rashmi@example.com", date:"2025-05-01", status:"delivered", items:[{ id:"TROTTEN-001", name:"TROTTEN Desk 120 cm", qty:1, price:169 },{ id:"ALEX-001", name:"ALEX Drawer unit", qty:1, price:89 }], total:258, addr:"12 Ailesbury Road, Dublin 4", courier:"DPD Ireland", tracking:"DPD-EI-99887766", payment:"Visa ···· 4321", delivered:"2025-05-08", method:"Home Delivery", points:26 },
+
+  // ── Sarah Connor (3 orders) ──
+  { id:"IE-2024-003", email:"sarah@example.com", date:"2024-09-05", status:"delivered", items:[{ id:"KALLAX-001", name:"KALLAX Shelving unit", qty:2, price:75 },{ id:"KALLAX-002", name:"KALLAX Insert with box", qty:4, price:15 }], total:210, addr:"45 Merrion Square, Dublin 2", courier:"DHL Express", tracking:"DHL-EI-67543210", payment:"Mastercard ···· 9876", delivered:"2024-09-12", method:"Home Delivery", points:21 },
+  { id:"IE-2024-005", email:"sarah@example.com", date:"2024-10-15", status:"delivered", items:[{ id:"KIVIK-002", name:"KIVIK Loveseat", qty:1, price:450 },{ id:"LACK-002", name:"LACK Coffee table", qty:1, price:39 }], total:489, addr:"45 Merrion Square, Dublin 2", courier:"DPD Ireland", tracking:"DPD-EI-39876104", payment:"Visa ···· 5432", delivered:"2024-10-22", method:"Home Delivery", points:49 },
+  { id:"IE-2025-004", email:"sarah@example.com", date:"2025-03-28", status:"cancelled", items:[{ id:"KIVIK-001", name:"KIVIK 3-Seater Sofa with chaise", qty:1, price:695 }], total:695, addr:"45 Merrion Square, Dublin 2", payment:"Refunded to Visa ···· 5432", method:"Home Delivery", reason:"Customer changed mind — reordered EKTÖP instead", cancelled:"2025-03-30" },
+
+  // ── John Murphy (2 orders) ──
+  { id:"IE-2025-006", email:"john@example.com", date:"2025-06-10", status:"processing", items:[{ id:"PAX-001", name:"PAX Wardrobe frame 100 cm", qty:2, price:255 },{ id:"HEMNES-002", name:"HEMNES Bed frame with 3 drawers", qty:1, price:455 }], total:965, addr:"8 Temple Road, Dublin 6", payment:"Mastercard ···· 1122", method:"Home Delivery", eta:"2025-07-05", points:97 },
+  { id:"IE-2025-016", email:"john@example.com", date:"2025-07-12", status:"processing", items:[{ id:"MALM-003", name:"MALM Dressing table", qty:1, price:75 },{ id:"POÄNG-001", name:"POÄNG Armchair", qty:2, price:89 }], total:253, addr:"8 Temple Road, Dublin 6", payment:"Visa ···· 3344", method:"Home Delivery", eta:"2025-07-22", points:25 },
+
+  // ── Emma Walsh (3 orders) ──
+  { id:"IE-2024-007", email:"emma@example.com", date:"2024-12-01", status:"delivered", items:[{ id:"POÄNG-001", name:"POÄNG Armchair", qty:2, price:89 },{ id:"POÄNG-002", name:"POÄNG Footstool", qty:2, price:49 },{ id:"FRAKTA-001", name:"FRAKTA Shopping bag", qty:3, price:0.99 }], total:278.97, addr:"23 Howth Road, Dublin 5", courier:"DHL Express", tracking:"DHL-EI-11223344", payment:"Visa ···· 5566", delivered:"2024-12-09", method:"Home Delivery", points:28 },
+  { id:"IE-2025-008", email:"emma@example.com", date:"2025-04-20", status:"delivered", items:[{ id:"BESTÅ-001", name:"BESTÅ TV unit", qty:1, price:125 },{ id:"BESTÅ-002", name:"BESTÅ Wall shelf", qty:2, price:30 }], total:185, addr:"23 Howth Road, Dublin 5", courier:"DPD Ireland", tracking:"DPD-EI-55667788", payment:"Mastercard ···· 7788", delivered:"2025-04-27", method:"Home Delivery", points:19 },
+  { id:"IE-2025-017", email:"emma@example.com", date:"2025-06-28", status:"shipped", items:[{ id:"HEMNES-001", name:"HEMNES Chest of 8 drawers", qty:1, price:249 },{ id:"MALM-004", name:"MALM Desk", qty:1, price:59 }], total:308, addr:"23 Howth Road, Dublin 5", courier:"DPD Ireland", tracking:"DPD-EI-22334455", payment:"Visa ···· 5566", eta:"2025-07-06", method:"Home Delivery", points:31 },
+
+  // ── Ciarán O'Brien (2 orders) ──
+  { id:"IE-2025-009", email:"ciaran@example.com", date:"2025-07-01", status:"shipped", items:[{ id:"TROTTEN-001", name:"TROTTEN Desk 120 cm", qty:1, price:169 },{ id:"ALEX-001", name:"ALEX Drawer unit", qty:1, price:89 }], total:258, addr:"56 Capel Street, Dublin 1", courier:"DPD Ireland", tracking:"DPD-EI-99001122", payment:"Visa ···· 9900", eta:"2025-07-08", method:"Home Delivery", points:26 },
+  { id:"IE-2025-018", email:"ciaran@example.com", date:"2025-05-15", status:"delivered", items:[{ id:"LACK-002", name:"LACK Coffee table", qty:1, price:39 },{ id:"FRAKTA-001", name:"FRAKTA Shopping bag", qty:2, price:0.99 }], total:40.98, addr:"56 Capel Street, Dublin 1", courier:"DPD Ireland", tracking:"DPD-EI-55443322", payment:"Mastercard ···· 0011", delivered:"2025-05-19", method:"Home Delivery", points:4 },
+
+  // ── Aoife O'Sullivan (3 orders) ──
+  { id:"IE-2024-011", email:"aoife@example.com", date:"2024-11-08", status:"delivered", items:[{ id:"BESTÅ-001", name:"BESTÅ TV unit", qty:1, price:125 },{ id:"KALLAX-001", name:"KALLAX Shelving unit", qty:3, price:75 }], total:350, addr:"17 Dun Laoghaire Road, Dublin 6", courier:"DHL Express", tracking:"DHL-EI-99881234", payment:"Visa ···· 2468", delivered:"2024-11-15", method:"Home Delivery", points:35 },
+  { id:"IE-2025-012", email:"aoife@example.com", date:"2025-03-15", status:"delivered", items:[{ id:"POÄNG-001", name:"POÄNG Armchair", qty:4, price:89 }], total:356, addr:"17 Dun Laoghaire Road, Dublin 6", courier:"DPD Ireland", tracking:"DPD-EI-77665544", payment:"Mastercard ···· 1357", delivered:"2025-03-22", method:"Home Delivery", points:36 },
+  { id:"IE-2025-019", email:"aoife@example.com", date:"2025-06-20", status:"shipped", items:[{ id:"KIVIK-001", name:"KIVIK 3-Seater Sofa with chaise", qty:1, price:695 },{ id:"LACK-001", name:"LACK Side table", qty:2, price:12 }], total:719, addr:"17 Dun Laoghaire Road, Dublin 6", courier:"DPD Ireland", tracking:"DPD-EI-88776655", payment:"Visa ···· 2468", eta:"2025-06-30", method:"Home Delivery", points:72 },
+
+  // ── Liam Kelly (2 orders) ──
+  { id:"IE-2025-013", email:"liam@example.com", date:"2025-04-12", status:"delivered", items:[{ id:"BILLY-001", name:"BILLY Bookcase", qty:2, price:89 },{ id:"BILLY-002", name:"BILLY Bookcase with glass doors", qty:1, price:179 }], total:357, addr:"33 Patrick Street, Cork", courier:"DHL Express", tracking:"DHL-EI-66443322", payment:"Visa ···· 3579", delivered:"2025-04-19", method:"Home Delivery", points:36 },
+  { id:"IE-2025-020", email:"liam@example.com", date:"2025-05-24", status:"delivered", items:[{ id:"MALM-002", name:"MALM Chest of 6 drawers", qty:1, price:199 },{ id:"MALM-004", name:"MALM Desk", qty:1, price:59 }], total:258, addr:"33 Patrick Street, Cork", courier:"DPD Ireland", tracking:"DPD-EI-44332211", payment:"Mastercard ···· 8642", delivered:"2025-05-30", method:"Home Delivery", points:26 },
+
+  // ── Niamh Byrne (2 orders) ──
+  { id:"IE-2025-015", email:"niamh@example.com", date:"2025-06-05", status:"delivered", items:[{ id:"KURA-001", name:"KURA Reversible bed", qty:1, price:159 },{ id:"SMÅSTAD-001", name:"SMÅSTAD Storage system", qty:1, price:299 }], total:458, addr:"9 O'Connell Street, Limerick", courier:"DPD Ireland", tracking:"DPD-EI-66778899", payment:"Visa ···· 1414", delivered:"2025-06-12", method:"Home Delivery", points:46 },
+  { id:"IE-2025-021", email:"niamh@example.com", date:"2025-07-05", status:"processing", items:[{ id:"KALLAX-001", name:"KALLAX Shelving unit", qty:1, price:75 },{ id:"KALLAX-002", name:"KALLAX Insert with box", qty:2, price:15 }], total:105, addr:"9 O'Connell Street, Limerick", payment:"Mastercard ···· 2525", method:"Home Delivery", eta:"2025-07-16", points:11 },
+
+  // ── Seán McCarthy (3 orders) ──
+  { id:"IE-2024-022", email:"sean@example.com", date:"2024-12-18", status:"delivered", items:[{ id:"TROTTEN-002", name:"TROTTEN Sit/stand desk", qty:1, price:399 },{ id:"ALEX-001", name:"ALEX Drawer unit", qty:2, price:89 }], total:577, addr:"22 Main Street, Galway", courier:"DHL Express", tracking:"DHL-EI-33221100", payment:"Visa ···· 3690", delivered:"2024-12-28", method:"Home Delivery", points:58 },
+  { id:"IE-2025-023", email:"sean@example.com", date:"2025-02-10", status:"delivered", items:[{ id:"FJÄLLBO-001", name:"FJÄLLBO Ladder shelf", qty:2, price:39 },{ id:"GERTON-001", name:"GERTON Table", qty:1, price:55 }], total:133, addr:"22 Main Street, Galway", courier:"DPD Ireland", tracking:"DPD-EI-11002233", payment:"Mastercard ···· 8024", delivered:"2025-02-16", method:"Home Delivery", points:13 },
+  { id:"IE-2025-024", email:"sean@example.com", date:"2025-07-10", status:"processing", items:[{ id:"EKTÖP-001", name:"EKTÖP 3-Seater Sofa", qty:1, price:849 },{ id:"LACK-002", name:"LACK Coffee table", qty:1, price:39 }], total:888, addr:"22 Main Street, Galway", payment:"Visa ···· 3690", method:"Home Delivery", eta:"2025-07-28", points:89 },
+
+  // ── Máiréad Ní Raghallaigh (2 orders) ──
+  { id:"IE-2024-025", email:"mairead@example.com", date:"2024-10-20", status:"delivered", items:[{ id:"MALM-005", name:"MALM Bed frame high", qty:1, price:295 },{ id:"HEMNES-001", name:"HEMNES Chest of 8 drawers", qty:1, price:249 }], total:544, addr:"5 The Crescent, Dundrum, Dublin 16", courier:"DHL Express", tracking:"DHL-EI-55119988", payment:"Visa ···· 7531", delivered:"2024-10-28", method:"Home Delivery", points:54 },
+  { id:"IE-2025-026", email:"mairead@example.com", date:"2025-07-08", status:"shipped", items:[{ id:"PAX-002", name:"PAX Wardrobe frame 150 cm", qty:1, price:325 },{ id:"BESTÅ-001", name:"BESTÅ TV unit", qty:1, price:125 }], total:450, addr:"5 The Crescent, Dundrum, Dublin 16", courier:"DPD Ireland", tracking:"DPD-EI-77551133", payment:"Mastercard ···· 9512", eta:"2025-07-15", method:"Home Delivery", points:45 },
+];
+
+const STORE = {
+  name:"IKEA Ballymun",
+  addr:"St. Margaret's Road, Ballymun, Dublin 11, D11 FW18",
+  phone:"+353 (0)1 123 4567",
+  hours:{ mon_fri:"10:00 – 21:00", sat:"10:00 – 20:00", sun:"11:00 – 18:00" },
+  services:["Swedish Restaurant 🍴","Småland Play Area 🧸","Click & Collect 📱","Kitchen Planning 🍳","Bedroom Planning 🛏️","Van Hire 🚐","Assembly Service 🔧","Personal Shopper 👤"],
+  facilities:["Free parking (1000+ spaces)","EV charging stations","Baby changing room","Wheelchair accessible","Bike parking","Free WiFi"]
+};
+
+const OFFERS = [
+  { name:"Free tea or coffee ☕", desc:"Every weekday in the Swedish Restaurant. Show your IKEA Family card.", type:"In-store" },
+  { name:"Kids eat for €0.95 👶", desc:"Kids meals from just 95c in our restaurant.", type:"In-store" },
+  { name:"4 for 3 on moving boxes 📦", desc:"Buy 3 DUNDERGUBBE boxes, get 1 free.", type:"In-store" },
+  { name:"IKEA Family prices 💛", desc:"Exclusive member prices on selected products.", type:"Online & in-store" },
+  { name:"Free workshops 🎨", desc:"DIY, planning, and family events for members.", type:"In-store" },
+  { name:"Earn points ⭐", desc:"Earn points on every purchase. Redeem for rewards.", type:"Online & in-store" },
+];
+
+// ════════════════════════════════════════════════════════════════
+// STATE & REFS
+// ════════════════════════════════════════════════════════════════
+const SK = 'ikea_key', ST = 'ikea_type', DK = 'ikea_dark';
+let apiKey = localStorage.getItem(SK) || '';
+let apiType = localStorage.getItem(ST) || 'openai';
+let demo = false;
+let dark = localStorage.getItem(DK) === 'true';
+let msgs = [];
+
+const $ = id => document.getElementById(id);
+const chatMsgs = $('chatMsgs'), chatInput = $('chatInput'), sendBtn = $('sendBtn');
+const toolLog = $('toolLog'), statusDot = $('statusDot'), statusText = $('statusText');
+const sb = $('sidebarBody'), sRes = $('sidebarResults'), sEmpty = $('sidebarEmpty');
+const rCount = $('resultCount'), demoTag = $('demoTag');
+
+// ════════════════════════════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════════════════════════════
+
+function setStatus(on, label) {
+  statusDot.className = 'dot ' + (on ? 'on' : 'off');
+  statusText.textContent = label || (on ? 'Connected' : 'Not connected');
+}
+
+function addLog(name, args, result, err) {
+  const d = document.createElement('div'); d.className = 'tl-item';
+  d.innerHTML = `<span>⚡</span><span class="tl-name">${name}</span>${args?` <span style="color:var(--text-tertiary)">${JSON.stringify(args)}</span>`:''}<span class="tl-res${err?' err':''}"> → ${(result||'').slice(0,140)}</span>`;
+  toolLog.appendChild(d); toolLog.scrollTop = toolLog.scrollHeight;
+  while (toolLog.children.length > 60) toolLog.removeChild(toolLog.firstChild);
+}
+
+function addMsg(role, html, opts) {
+  const el = document.createElement('div'); el.className = `msg ${role}`;
+  let b = `<div class="bubble">${html}`;
+  if (opts?.tools?.length) {
+    opts.tools.forEach(t => {
+      b += `<div class="tc-wrap"><div class="tc-h"><span class="spinner"></span> ${t.name}</div><div class="tc-body">${JSON.stringify(t.args)}</div><div class="tc-res${t.err?' err':''}">→ ${t.res}</div></div>`;
+    });
+  }
+  b += '</div>';
+  el.innerHTML = `<div class="avatar">${role==='user'?'U':'I'}</div>${b}`;
+  chatMsgs.appendChild(el); chatMsgs.scrollTop = chatMsgs.scrollHeight;
+}
+
+function addThink() {
+  const d = document.createElement('div'); d.className = 'msg bot thinking'; d.id = 'thinkMsg';
+  d.innerHTML = '<div class="avatar">I</div><div class="bubble">Thinking<div class="typing"><span></span><span></span><span></span></div></div>';
+  chatMsgs.appendChild(d); chatMsgs.scrollTop = chatMsgs.scrollHeight;
+}
+
+function rmThink() { const e = $('thinkMsg'); if(e) e.remove(); }
+
+function showSpreadsheet() {
+  const data = TOOLS.view_transaction_log.fn({});
+  data.then(r => {
+    showRes(spreadsheetHTML(r.orders, r.summary), `${r.orders.length} orders`);
+    addMsg('bot', `<strong>📊 Customer Transaction Log</strong><br>${r.summary.total} orders · €${r.summary.revenue.toFixed(2)} total revenue · €${r.summary.avgOrder.toFixed(2)} avg order<br><br>See the sidebar for the full spreadsheet view.`);
+  });
+}
+
+function clrRes() { sRes.style.display='none'; sRes.innerHTML=''; sEmpty.style.display='flex'; rCount.textContent=''; }
+
+function showRes(html, count) {
+  sEmpty.style.display='none'; sRes.style.display='block'; sRes.innerHTML=html;
+  rCount.textContent = count ? `${count}` : '';
+  sb.scrollTop = 0;
+}
+
+function productIcon(p) {
+  const prefix = p.id.split('-')[0];
+  return ICONS[prefix] || CAT_ICONS[p.cat] || '📦';
+}
+
+// ════════════════════════════════════════════════════════════════
+// CARDS
+// ════════════════════════════════════════════════════════════════
+
+function pCard(p) {
+  return `<div class="prod-card"><div class="pc-row"><div class="pc-icon">${productIcon(p)}</div><div class="pc-info"><div class="pc-name">${p.name}</div><div class="pc-meta"><span class="cat">${p.cat}</span> · ${p.id}</div><div class="pc-desc">${p.desc}</div></div><div class="pc-price">€${p.price}</div></div><div class="pc-tags">${p.tags.slice(0,4).map(t=>`<span>${t}</span>`).join('')}</div></div>`;
+}
+
+function pInl(p) {
+  return `<div class="p-inline"><div style="display:flex;justify-content:space-between"><span class="pi-name">${productIcon(p)} ${p.name}</span><span class="pi-price">€${p.price}</span></div><div style="font-size:0.6rem;color:var(--text-tertiary);margin-top:1px">${p.cat} · ${p.id}</div></div>`;
+}
+
+function timeline(s) {
+  if (s === 'cancelled') return `<div style="font-size:0.55rem;color:var(--red);margin:4px 0">❌ Cancelled</div>`;
+  const steps = [
+    { k:'processing', l:'Processing', i:'📝' },
+    { k:'shipped', l:'Shipped', i:'🚚' },
+    { k:'delivered', l:'Delivered', i:'✅' }
+  ];
+  const idx = steps.findIndex(x => x.k === s);
+  return `<div class="timeline">${steps.map((st,i) => {
+    const cls = i < idx ? 'done' : i === idx ? 'active' : '';
+    return `<div class="tl-step ${cls}"><div class="tl-dot">${i < idx ? '✓' : i === idx ? '' : ''}</div><div class="tl-label">${st.l}</div></div>${i < steps.length-1 ? `<div class="tl-line${i < idx ? ' fill' : ''}"></div>` : ''}`;
+  }).join('')}</div>`;
+}
+
+function oCard(o) {
+  return `<div class="ord-card">
+    <div class="oc-row"><span class="oc-id">${o.id}</span><span class="oc-badge s-${o.status}">${o.status}</span></div>
+    <div class="oc-date">${new Date(o.date).toLocaleDateString('en-IE',{day:'numeric',month:'short',year:'numeric'})}</div>
+    <div class="oc-items">${o.items.map(i=>`${i.qty}× ${i.name}`).join(', ')}</div>
+    <div class="oc-total">€${o.total.toFixed(2)}</div>
+    ${o.payment ? `<div style="font-size:0.56rem;color:var(--text-tertiary);margin-top:2px">💳 ${o.payment}</div>` : ''}
+    ${o.method ? `<div style="font-size:0.56rem;color:var(--text-tertiary)">📦 ${o.method}</div>` : ''}
+    ${o.points ? `<div style="font-size:0.56rem;color:var(--text-tertiary)">💛 +${o.points} Family points</div>` : ''}
+    ${timeline(o.status)}
+    ${o.courier?`<div class="oc-track">📮 ${o.courier} · ${o.tracking||''}</div>`:''}
+    ${o.delivered?`<div class="oc-track">✅ Delivered ${o.delivered}</div>`:''}
+    ${o.eta?`<div class="oc-track">🚚 Est. ${o.eta}</div>`:''}
+    ${o.reason?`<div class="oc-reason">${o.reason}</div>`:''}
+    ${o.cancelled?`<div class="oc-track" style="color:var(--red)">❌ Cancelled ${o.cancelled}</div>`:''}
+  </div>`;
+}
+
+function spreadsheetHTML(orders, summary) {
+  const rows = orders.map(o => {
+    const c = CUSTOMERS.find(c => c.email === o.email);
+    return `<tr>
+      <td style="font-weight:600;font-size:0.64rem">${o.id}</td>
+      <td style="font-size:0.64rem">${c?.name||'Unknown'}</td>
+      <td style="font-size:0.58rem;color:var(--text-tertiary)">${o.email}</td>
+      <td style="font-size:0.6rem">${new Date(o.date).toLocaleDateString('en-IE',{day:'numeric',month:'short'})}</td>
+      <td style="font-size:0.6rem">${o.items.length} item${o.items.length>1?'s':''}</td>
+      <td style="font-weight:600;font-size:0.66rem;color:var(--blue)">€${o.total.toFixed(2)}</td>
+      <td><span class="oc-badge s-${o.status}" style="font-size:0.48rem">${o.status}</span></td>
+      <td style="font-size:0.56rem;color:var(--text-tertiary)">${o.payment?.replace(/·.*/,'···')||'—'}</td>
+      <td style="font-size:0.56rem;color:var(--text-tertiary)">${o.method||'—'}</td>
+      <td style="font-size:0.52rem;color:var(--text-tertiary);font-family:monospace">${o.tracking||'—'}</td>
+      <td style="font-size:0.56rem">${o.delivered||o.eta||'—'}</td>
+    </tr>`;
+  }).join('');
+  return `<div style="overflow-x:auto">
+    <div style="display:flex;gap:16px;padding:8px 2px 12px;flex-wrap:wrap">
+      <div style="background:var(--blue-50);padding:6px 14px;border-radius:8px;font-size:0.7rem"><strong>${summary.total}</strong> orders</div>
+      <div style="background:var(--green-50);padding:6px 14px;border-radius:8px;font-size:0.7rem"><strong>€${summary.revenue.toFixed(2)}</strong> revenue</div>
+      <div style="background:var(--blue-50);padding:6px 14px;border-radius:8px;font-size:0.7rem"><strong>€${summary.avgOrder.toFixed(2)}</strong> avg order</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:0.6rem">
+      <thead><tr style="border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:0.04em;font-size:0.55rem;color:var(--text-tertiary)">
+        <th style="padding:6px 4px;text-align:left">Order</th><th style="padding:6px 4px;text-align:left">Customer</th><th style="padding:6px 4px;text-align:left">Email</th><th style="padding:6px 4px;text-align:left">Date</th><th style="padding:6px 4px;text-align:left">Items</th><th style="padding:6px 4px;text-align:right">Total</th><th style="padding:6px 4px;text-align:center">Status</th><th style="padding:6px 4px;text-align:left">Payment</th><th style="padding:6px 4px;text-align:left">Method</th><th style="padding:6px 4px;text-align:left">Tracking</th><th style="padding:6px 4px;text-align:left">ETA/Delivered</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function oInl(o) {
+  const c = o.status==='delivered'?'#16a34a':o.status==='shipped'?'#0051ba':o.status==='processing'?'#ea580c':'#dc2626';
+  const b = o.status==='delivered'?'#f0fdf4':o.status==='shipped'?'#eef4fb':o.status==='processing'?'#fff7ed':'#fef2f2';
+  return `<div class="o-inline">
+    <div class="oi-head"><span class="oi-id">${o.id}</span><span style="font-size:0.52rem;padding:1px 8px;border-radius:8px;font-weight:600;background:${b};color:${c};text-transform:uppercase;letter-spacing:0.03em">${o.status}</span></div>
+    <div style="font-size:0.64rem;color:var(--text-secondary);margin-top:2px">${o.items.map(i=>`${i.qty}× ${i.name}`).join(', ')}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+      <span class="oi-total">€${o.total.toFixed(2)}</span>
+      <span style="font-size:0.52rem;color:var(--text-tertiary)">${o.method||'Delivery'}</span>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// MCP TOOLS
+// ════════════════════════════════════════════════════════════════
+
+const TOOLS = {
+  search_products: {
+    desc:"Search IKEA products by name, category, or keyword",
+    params:{ query:"Search term (e.g. 'MALM', 'sofa', 'bedroom', 'storage')" },
+    fn:async ({ query }) => {
+      if (!query) return { error:"Please enter a search term." };
+      const q = query.toLowerCase();
+      let r = PRODUCTS.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q) || p.tags.some(t => t.includes(q)) || p.desc.toLowerCase().includes(q));
+      if (!r.length) {
+        const ws = q.split(/\s+/).filter(w => w.length > 2);
+        if (ws.length) r = PRODUCTS.filter(p => ws.some(w => p.name.toLowerCase().includes(w) || p.cat.toLowerCase().includes(w) || p.tags.some(t => t.includes(w))));
+      }
+      return { results:r.slice(0,12), total:r.length, query };
+    }
+  },
+  product_details: {
+    desc:"Get detailed information about a specific IKEA product",
+    params:{ product:"Product name or ID (e.g. 'MALM Bed' or 'MALM-001')" },
+    fn:async ({ product }) => {
+      if (!product) return { error:"Provide a product name or ID." };
+      const q = product.toLowerCase();
+      const p = PRODUCTS.find(x => x.id.toLowerCase() === q) || PRODUCTS.find(x => x.name.toLowerCase().includes(q));
+      return p ? { product:p } : { error:`Product "${product}" not found. Try searching first.` };
+    }
+  },
+  track_order: {
+    desc:"Track an IKEA order by ID or find all orders for a customer email",
+    params:{ orderId:"Order ID (e.g. IE-2024-001)", email:"Customer email (finds all orders)" },
+    fn:async ({ orderId, email }) => {
+      if (orderId) {
+        const o = ORDERS.find(x => x.id.toLowerCase() === orderId.toLowerCase());
+        if (!o) return { error:`Order "${orderId}" not found.` };
+        return { order:{ ...o, customer:CUSTOMERS.find(c => c.email === o.email)?.name || 'Unknown' } };
+      }
+      if (email) {
+        const c = CUSTOMERS.find(x => x.email.toLowerCase() === email.toLowerCase());
+        if (!c) return { error:`No customer found for "${email}".` };
+        return { customer:c, orders:ORDERS.filter(x => x.email.toLowerCase() === email.toLowerCase()).sort((a,b) => new Date(b.date)-new Date(a.date)) };
+      }
+      return { error:"Provide an order ID or email address." };
+    }
+  },
+  purchase_history: {
+    desc:"Get full purchase history and summary for a customer by email",
+    params:{ email:"Customer email address" },
+    fn:async ({ email }) => {
+      if (!email) return { error:"Provide an email address." };
+      const c = CUSTOMERS.find(x => x.email.toLowerCase() === email.toLowerCase());
+      if (!c) return { error:`No customer found for "${email}".` };
+      const orders = ORDERS.filter(x => x.email.toLowerCase() === email.toLowerCase()).sort((a,b) => new Date(b.date)-new Date(a.date));
+      const spent = orders.reduce((s,o) => s + o.total, 0);
+      return { customer:c, orders, summary:{ total:orders.length, spent:Math.round(spent*100)/100, points:c.points } };
+    }
+  },
+  store_info: {
+    desc:"Get IKEA Ballymun store hours, services, facilities and directions",
+    fn:async () => ({ store:STORE })
+  },
+  family_offers: {
+    desc:"Get current IKEA Family offers and member benefits",
+    fn:async () => ({ offers:OFFERS })
+  },
+  categories: {
+    desc:"List all IKEA product categories with product counts",
+    fn:async () => {
+      const m = {}; PRODUCTS.forEach(p => { m[p.cat] = (m[p.cat]||0) + 1; });
+      return { categories:Object.entries(m).map(([k,v]) => ({ name:k, count:v })).sort((a,b) => b.count - a.count) };
+    }
+  },
+  view_transaction_log: {
+    desc:"View the complete IKEA customer transaction log — all orders in a spreadsheet format",
+    params:{ email:"Filter by customer email (optional)", status:"Filter by status (optional)" },
+    fn:async ({ email, status }) => {
+      let orders = [...ORDERS];
+      if (email) orders = orders.filter(o => o.email.toLowerCase() === email.toLowerCase());
+      if (status) orders = orders.filter(o => o.status.toLowerCase() === status.toLowerCase());
+      const customers = {};
+      CUSTOMERS.forEach(c => { customers[c.email] = c; });
+      return {
+        orders: orders.sort((a,b) => new Date(b.date) - new Date(a.date)),
+        summary: { total:orders.length, revenue:Math.round(orders.reduce((s,o) => s+o.total, 0)*100)/100, avgOrder:orders.length ? Math.round(orders.reduce((s,o) => s+o.total, 0)/orders.length*100)/100 : 0 },
+        columns: ["Order ID","Customer","Email","Date","Items","Total","Status","Payment","Delivery","Tracking","Delivered/ETA"]
+      };
+    }
+  }
+};
+
+// ════════════════════════════════════════════════════════════════
+// SYSTEM PROMPT
+// ════════════════════════════════════════════════════════════════
+
+const SYSTEM = `You are the IKEA Ireland AI Shopping Assistant, a helpful and knowledgeable companion for customers shopping at IKEA.
+
+Your brand voice: Warm, friendly, knowledgeable, concise. Use natural language with occasional emojis. Always be helpful.
+
+Available tools — use them to answer questions accurately:
+- search_products(query) — Search products by name, category, or keyword
+- product_details(product) — Get detailed info on a specific product
+- track_order(orderId, email) — Track orders by ID or find all orders for a customer
+- purchase_history(email) — Get a customer's complete purchase history with summary
+- store_info() — IKEA Ballymun hours, services, facilities, directions
+- family_offers() — Current IKEA Family offers and member benefits
+- categories() — All product categories with product counts
+
+Rules:
+1. ALWAYS use tools to answer — never invent or guess information
+2. For product searches, show top results concisely and suggest narrowing down
+3. For orders, ask for the order ID or customer email if not provided
+4. For purchase history, always ask for the customer email
+5. Include prices in euros (€) whenever relevant
+6. Suggest related products or categories when appropriate
+7. If a search returns no results, suggest alternative keywords
+8. Be conversational but efficient — customers want answers quickly`;
+
+// ════════════════════════════════════════════════════════════════
+// EXECUTOR
+// ════════════════════════════════════════════════════════════════
+
+async function exec(name, args) {
+  const t = TOOLS[name];
+  if (!t) throw new Error(`Unknown tool: ${name}`);
+  const r = await t.fn(args||{});
+  addLog(name, args, r.error || (r.results ? `${r.total} products` : r.order ? `Order ${r.order.id}` : r.product ? r.product.name : r.customer ? r.customer.name : r.store ? r.store.name : r.offers ? `${r.offers.length} offers` : r.categories ? `${r.categories.length} categories` : 'ok'), !!r.error);
+  return r;
+}
+
+// ════════════════════════════════════════════════════════════════
+// DEMO
+// ════════════════════════════════════════════════════════════════
+
+function toggleDemo() {
+  demo = !demo;
+  if (demo) {
+    setStatus(true, 'Demo mode'); demoTag.style.display = 'inline'; $('demoBtn').textContent = '🛑 Stop';
+    addMsg('bot', '🎯 <strong>Demo mode</strong> activated! I\'ll use built-in IKEA data. Try searching products or tracking an order.');
+  } else {
+    demoTag.style.display = 'none'; $('demoBtn').textContent = '🎯 Demo';
+    apiKey ? setStatus(true, 'Connected') : setStatus(false, 'Not connected');
+    addMsg('bot', 'Demo mode deactivated.');
+  }
+}
+
+async function demoResp(text) {
+  addThink();
+  try {
+    const q = text.toLowerCase();
+    const email = q.match(/[\w.-]+@[\w.-]+\.\w+/)?.[0] || null;
+    const named = { rashmi:'rashmi@example.com', sarah:'sarah@example.com', john:'john@example.com', emma:'emma@example.com', 'ciarán':'ciaran@example.com' };
+    const nEmail = Object.entries(named).find(([k]) => q.includes(k))?.[1] || null;
+    const lookup = email || nEmail;
+
+    // Store info
+    if (q.includes('store') || q.includes('ballymun') || q.includes('hour') || q.includes('open') || q.includes('direction') || q.includes('location') || q.includes('service') || q.includes('facilities')) {
+      const r = await exec('store_info');
+      rmThink();
+      const s = r.store;
+      addMsg('bot', `<strong>🏪 ${s.name}</strong><br><br>📍 ${s.addr}<br>📞 ${s.phone}<br><br>🕐 <strong>Opening Hours</strong><br>Mon–Fri: ${s.hours.mon_fri}<br>Sat: ${s.hours.sat}<br>Sun: ${s.hours.sun}<br><br>🛠️ <strong>Services</strong><br>${s.services.map(x => '• ' + x).join('<br>')}<br><br>📍 <strong>Facilities</strong><br>${s.facilities.map(x => '• ' + x).join('<br>')}`);
+      showRes(`<div class="empty-state" style="display:flex"><div class="es-icon">🏪</div><h3>${s.name}</h3><p>📍 ${s.addr}<br>📞 ${s.phone}<br><br>🕐 ${s.hours.mon_fri} Mon–Fri<br>🕐 ${s.hours.sat} Sat<br>🕐 ${s.hours.sun} Sun</p></div>`);
+      return;
+    }
+
+    // IKEA Family / Offers
+    if (q.includes('family') || q.includes('offer') || q.includes('deal') || q.includes('discount') || q.includes('member') || q.includes('benefit') || q.includes('reward')) {
+      const r = await exec('family_offers');
+      rmThink();
+      addMsg('bot', `<strong>💛 IKEA Family Offers</strong><br><br><ul>${r.offers.map(o => `<li><strong>${o.name}</strong> — ${o.desc} <span style="font-size:0.55rem;color:var(--text-tertiary)">[${o.type}]</span></li>`).join('')}</ul><br><a href="https://www.ikea.com/ie/en/ikea-family/" target="_blank" style="color:var(--blue)">👉 Join IKEA Family →</a>`);
+      return;
+    }
+
+    // Categories
+    if (q.includes('categor') || q.includes('department') || q.includes('section') || q.includes('all product') || q.includes('what do you have') || q.includes('everything')) {
+      const r = await exec('categories');
+      rmThink();
+      const list = r.categories.map(c => `<li><strong>${c.name}</strong> — ${c.count} products</li>`).join('');
+      addMsg('bot', `<strong>📂 Product Categories</strong><br><br><ul>${list}</ul><br>Which one interests you?`);
+      return;
+    }
+
+    // Orders / Purchase history
+    if (q.includes('order') || q.includes('track') || q.includes('delivery') || q.includes('ship') || q.includes('purchase') || q.includes('history') || q.includes('bought') || q.includes('where') || q.includes('status') || q.includes('delivered') || q.includes('processing')) {
+      const idMatch = q.match(/IE-\d{4}-\d{3,4}/i);
+      if (idMatch) {
+        const r = await exec('track_order', { orderId:idMatch[0].toUpperCase() });
+        rmThink();
+        if (r.error) { addMsg('bot', r.error); return; }
+        addMsg('bot', `<strong>📦 Order ${r.order.id}</strong><br>${oInl(r.order)}<br>👤 ${r.order.customer}<br>📍 ${r.order.addr}`);
+        showRes(oCard(r.order));
+        return;
+      }
+      const isHist = q.includes('history') || q.includes('purchase') || q.includes('bought') || q.includes('all order');
+      if (lookup) {
+        if (isHist) {
+          const r = await exec('purchase_history', { email:lookup });
+          rmThink();
+          if (r.error) { addMsg('bot', r.error); return; }
+          showRes(r.orders.map(o => oCard(o)).join(''), r.orders.length);
+          addMsg('bot', `<strong>📋 ${r.customer.name} · Purchase History</strong><br>📦 ${r.summary.total} orders · 💰 €${r.summary.spent.toFixed(2)} total · 💛 ${r.summary.points} Family points<br><br>See the sidebar for full details.`);
+          return;
+        } else {
+          const r = await exec('track_order', { email:lookup });
+          rmThink();
+          if (r.error) { addMsg('bot', r.error); return; }
+          showRes(r.orders.map(o => oCard(o)).join(''), r.orders.length);
+          const latest = r.orders[0];
+          addMsg('bot', `<strong>📦 Latest order for ${r.customer.name}</strong><br>${oInl(latest)}<br><br>${r.orders.length} order${r.orders.length>1?'s':''} total — see sidebar for all.`);
+          return;
+        }
+      }
+      rmThink();
+      addMsg('bot', 'I can track your orders! Please provide your <strong>email address</strong> (e.g., <code>rashmi@example.com</code>) or an <strong>order ID</strong> (e.g., <code>IE-2024-001</code>).');
+      return;
+    }
+
+    // Default: product search
+    const searchQ = q.replace(/^(show me|find me|search for|look for|i need|i want|i\'m looking for|tell me about|what is|what are|do you have|got any|any|recommend|suggest|show|find|search|need|want|looking)\s+/i, '').trim();
+    const r = await exec('search_products', { query:searchQ || q });
+    rmThink();
+    if (r.error) { addMsg('bot', r.error); return; }
+    if (!r.results.length) {
+      addMsg('bot', `❌ No products found for "${searchQ}". Try different keywords like <strong>bed</strong>, <strong>sofa</strong>, or <strong>storage</strong>.`);
+      return;
+    }
+    showRes(r.results.map(p => pCard(p)).join(''), r.total);
+    const top = r.results.slice(0,3).map(p => pInl(p)).join('');
+    addMsg('bot', `<strong>🔍 ${r.total} result${r.total>1?'s':''} for "${r.query}"</strong><br>${top}<br><br>See the sidebar for all results. Which one catches your eye?`);
+
+  } catch(e) { rmThink(); addMsg('bot', `⚠️ ${e.message}`); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// OPENAI
+// ════════════════════════════════════════════════════════════════
+
+async function openaiCall(text) {
+  msgs.push({ role:'user', content:text });
+  while (msgs.length > 20) msgs.shift();
+  addThink();
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${apiKey}` },
+      body:JSON.stringify({
+        model:'gpt-4o-mini',
+        messages:[{ role:'system', content:SYSTEM }, ...msgs],
+        tools:Object.entries(TOOLS).map(([n,t]) => ({ type:'function', function:{ name:n, description:t.desc, parameters:{ type:'object', properties:t.params ? Object.entries(t.params).reduce((a,[k,v]) => { a[k] = { type:'string', description:v }; return a; }, {}) : {}, required:t.params ? Object.keys(t.params) : [] } } })),
+        tool_choice:'auto', temperature:0.3
+      })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error.message);
+    let msg = d.choices[0].message;
+
+    while (msg.tool_calls) {
+      const ui = { tools:[] };
+      const tRes = [];
+      for (const tc of msg.tool_calls) {
+        let args = {};
+        try { args = JSON.parse(tc.function.arguments||'{}'); } catch(e) {}
+        try { const r = await exec(tc.function.name, args); tRes.push({ role:'tool', tool_call_id:tc.id, content:JSON.stringify(r) }); ui.tools.push({ name:tc.function.name, args, res:r.error||'done', err:!!r.error }); }
+        catch(e) { tRes.push({ role:'tool', tool_call_id:tc.id, content:JSON.stringify({ error:e.message }) }); ui.tools.push({ name:tc.function.name, args, res:e.message, err:true }); }
+      }
+      msgs.push({ role:'assistant', content:msg.content||'', tool_calls:msg.tool_calls });
+      msgs.push(...tRes);
+      const f = await fetch('https://api.openai.com/v1/chat/completions', {
+        method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${apiKey}` },
+        body:JSON.stringify({ model:'gpt-4o-mini', messages:[{ role:'system', content:SYSTEM }, ...msgs], temperature:0.3 })
+      });
+      const fd = await f.json();
+      if (fd.error) throw new Error(fd.error.message);
+      rmThink();
+      const c = fd.choices[0].message.content||'';
+      addMsg('bot', c, ui);
+      const last = tRes[tRes.length-1];
+      if (last) try { const p = JSON.parse(last.content); if (p.results?.length) showRes(p.results.map(x => pCard(x)).join(''), p.total); else if (p.orders?.length) showRes(p.orders.map(x => oCard(x)).join(''), p.orders.length); else if (p.order) showRes(oCard(p.order)); } catch(e) {}
+      msgs.push({ role:'assistant', content:c||'' });
+      return;
+    }
+    rmThink();
+    const c = msg.content||'';
+    addMsg('bot', c);
+    msgs.push({ role:'assistant', content:c });
+  } catch(e) { rmThink(); addMsg('bot', `⚠️ ${e.message}`); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// GEMINI
+// ════════════════════════════════════════════════════════════════
+
+async function geminiCall(text) {
+  msgs.push({ role:'user', content:text });
+  const tools = Object.entries(TOOLS).map(([n,t]) => ({ name:n, description:t.desc, parameters:{ type:'object', properties:t.params?Object.entries(t.params).reduce((a,[k,v]) => { a[k] = { type:'string', description:v }; return a; }, {}):{}, required:t.params?Object.keys(t.params):[] } }));
+  const hist = msgs.slice(0,-1).map(m => ({ role:m.role==='user'?'user':'model', parts:[{ text:m.content||'' }] }));
+  addThink();
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+      method:'POST', headers:{ 'Content-Type':'application/json' },
+      body:JSON.stringify({ system_instruction:{ parts:[{ text:SYSTEM }] }, contents:[ ...hist, { role:'user', parts:[{ text }] } ], tools:[{ function_declarations:tools }], generationConfig:{ temperature:0.3 } })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error.message);
+    let cand = d.candidates?.[0];
+    if (!cand) throw new Error('No response');
+    let part = cand.content?.parts?.[0];
+    let tRes = [], ui = [];
+
+    while (part?.functionCall) {
+      const fc = part.functionCall, args = fc.args||{};
+      let result;
+      try { result = await exec(fc.name, args); ui.push({ name:fc.name, args, res:result.error||'done', err:!!result.error }); }
+      catch(e) { result = { error:e.message }; ui.push({ name:fc.name, args, res:e.message, err:true }); }
+      tRes.push({ role:'function', parts:[{ functionResponse:{ name:fc.name, response:{ content:result } } }] });
+      const f = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        method:'POST', headers:{ 'Content-Type':'application/json' },
+        body:JSON.stringify({ system_instruction:{ parts:[{ text:SYSTEM }] }, contents:[ ...hist, { role:'user', parts:[{ text }] }, { role:'model', parts:[{ functionCall:fc }] }, ...tRes ], generationConfig:{ temperature:0.3 } })
+      });
+      const fd = await f.json();
+      if (fd.error) throw new Error(fd.error.message);
+      cand = fd.candidates?.[0]; if (!cand) throw new Error('No response');
+      part = cand.content?.parts?.[0];
+      if (result.results?.length) showRes(result.results.map(x => pCard(x)).join(''), result.total);
+      else if (result.orders?.length) showRes(result.orders.map(x => oCard(x)).join(''), result.orders.length);
+      else if (result.order) showRes(oCard(result.order));
+    }
+    rmThink();
+    const t = part?.text||'';
+    addMsg('bot', t||'Done!', { tools:ui });
+    msgs.push({ role:'assistant', content:t||'' });
+  } catch(e) { rmThink(); addMsg('bot', `⚠️ ${e.message}`); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// SEND
+// ════════════════════════════════════════════════════════════════
+
+async function send() {
+  const t = chatInput.value.trim();
+  if (!t) return;
+  chatInput.value = ''; sendBtn.disabled = true;
+  addMsg('user', t);
+  try {
+    if (demo) await demoResp(t);
+    else if (apiKey) { if (apiType === 'openai') await openaiCall(t); else await geminiCall(t); }
+    else addMsg('bot', '🔑 Please <strong>enter your API key</strong> or start <strong>Demo mode</strong> to begin.');
+  } catch(e) { rmThink(); addMsg('bot', `⚠️ ${e.message}`); }
+  sendBtn.disabled = false; chatInput.focus();
+}
+
+function quickSearch(q) { chatInput.value = q; send(); }
+chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+// ════════════════════════════════════════════════════════════════
+// SETUP / MODAL
+// ════════════════════════════════════════════════════════════════
+
+function showSetup() { $('setupModal').classList.remove('hidden'); $('apiKeyInput').value = apiKey; $('apiType').value = apiType; updHint(); }
+function closeSetup() { $('setupModal').classList.add('hidden'); }
+function updHint() {
+  $('providerHint').innerHTML = $('apiType').value === 'openai'
+    ? 'Get your key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>'
+    : 'Get your key at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>';
+}
+$('apiType').addEventListener('change', updHint);
+
+function saveSetup(useKey) {
+  const k = $('apiKeyInput'), t = $('apiType');
+  if (useKey && k.value.trim()) {
+    apiKey = k.value.trim(); apiType = t.value;
+    localStorage.setItem(SK, apiKey); localStorage.setItem(ST, apiType);
+    setStatus(true, `${apiType === 'openai' ? 'OpenAI' : 'Gemini'} connected`);
+    demo = false; demoTag.style.display = 'none'; $('demoBtn').textContent = '🎯 Demo';
+    closeSetup();
+    addMsg('bot', `✅ <strong>${apiType === 'openai' ? 'OpenAI GPT-4o-mini' : 'Gemini 2.0 Flash'}</strong> connected! Ask me anything about IKEA.`);
+  } else if (!useKey) {
+    demo = true; apiKey = '';
+    localStorage.removeItem(SK); localStorage.removeItem(ST);
+    setStatus(true, 'Demo mode'); demoTag.style.display = 'inline'; $('demoBtn').textContent = '🛑 Stop';
+    closeSetup();
+    addMsg('bot', '🎯 <strong>Demo mode</strong> active! Try searching products, tracking orders, or getting store info.');
+  }
+}
+
+function resetApp() {
+  localStorage.removeItem(SK); localStorage.removeItem(ST);
+  apiKey = ''; demo = false; msgs = [];
+  chatMsgs.innerHTML = ''; clrRes();
+  setStatus(false, 'Not connected'); demoTag.style.display = 'none'; $('demoBtn').textContent = '🎯 Demo';
+  addMsg('bot', '🔄 Reset complete. Enter your API key or start Demo mode.');
+}
+
+// ════════════════════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════════════════════
+
+function toggleTheme() {
+  dark = !dark; document.body.classList.toggle('dark', dark);
+  localStorage.setItem(DK, dark);
+}
+if (dark) document.body.classList.add('dark');
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+
+(function init() {
+  if (apiKey) {
+    setStatus(true, `${apiType === 'openai' ? 'OpenAI' : 'Gemini'} connected`);
+    addMsg('bot', `🔑 Welcome back! ${apiType === 'openai' ? 'OpenAI' : 'Gemini'} key loaded. How can I help you with IKEA today?`);
+  } else {
+    setTimeout(() => { if (!apiKey) showSetup(); }, 600);
+  }
+})();
+</script>
+</body>
+</html>
